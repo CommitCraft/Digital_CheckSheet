@@ -3,6 +3,8 @@ const fs = require('fs');
 const { promisify } = require('util');
 const pm2 = require('pm2');
 
+const IS_WINDOWS = process.platform === 'win32';
+
 // Enhanced historical data storage
 const systemHistory = {
   cpu: [],
@@ -35,21 +37,31 @@ class EnhancedSystemMonitor {
     this.initializeMonitoring();
   }
 
-  async connectToPM2() {
-    try {
-      await new Promise((resolve, reject) => {
-        pm2.connect((err) => {
-          if (err) reject(err);
-          else resolve();
-        });
-      });
-      this.pm2Connected = true;
-      console.log('✅ Enhanced System Monitor: Connected to PM2');
-    } catch (error) {
-      console.log('⚠️ Enhanced System Monitor: PM2 not available, using basic monitoring');
-      this.pm2Connected = false;
-    }
+ async connectToPM2() {
+
+  // Windows me PM2 disable
+  if (IS_WINDOWS) {
+    console.log('⚠️ PM2 disabled on Windows');
+    this.pm2Connected = false;
+    return;
   }
+
+  try {
+    await new Promise((resolve, reject) => {
+      pm2.connect((err) => {
+        if (err) reject(err);
+        else resolve();
+      });
+    });
+
+    this.pm2Connected = true;
+    console.log('✅ Connected to PM2');
+
+  } catch (error) {
+    console.log('⚠️ PM2 not available');
+    this.pm2Connected = false;
+  }
+}
 
   initializeMonitoring() {
     // Initialize previous CPU measurements for accurate delta calculations
@@ -339,7 +351,7 @@ class EnhancedSystemMonitor {
 
   // Enhanced PM2 process monitoring
   async getDetailedPM2Processes() {
-    if (!this.pm2Connected) {
+    if (!this.pm2Connected || IS_WINDOWS) {
       return [];
     }
 

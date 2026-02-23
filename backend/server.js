@@ -14,7 +14,7 @@ const routes = require('./src/routes');
 const { errorHandler } = require('./src/middleware/errorHandler');
 const enhancedSystemMonitor = require('./src/utils/enhancedSystemMonitor');
 
-const app = express();
+const app = express(); 
 
 // 🌐 Environment Variables
 const PORT = process.env.PORT || 5000;
@@ -97,7 +97,7 @@ app.use('/api', routes);
 app.get('/health', (req, res) => {
   res.status(200).json({
     success: true,
-    message: 'CMSCRM Backend Server is running',
+    message: 'Digital Checksheet Backend Server is running',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV
   });
@@ -107,7 +107,7 @@ app.get('/health', (req, res) => {
 app.get('/', (req, res) => {
   res.status(200).json({
     success: true,
-    message: 'Welcome to CMSCRM Backend API',
+    message: 'Welcome to Digital Checksheet Backend API',
     version: '1.0.0',
     documentation: '/api/docs'
   });
@@ -128,12 +128,15 @@ app.use(errorHandler);
 // 🚀 Start Server
 const startServer = async () => {
   try {
-    await db.execute('SELECT 1');
+    if(process.env.AUTO_DB_INIT === "true"){
+   await db.initializeDatabase();
+}
+    await db.executeQuery('SELECT 1');
     console.log('✅ Database connected successfully');
 
     app.listen(PORT, HOST, () => {
       const displayHost = HOST === '0.0.0.0' ? localIP : HOST;
-      console.log(`🚀 CMSCRM Backend running on http://${displayHost}:${PORT}`);
+      console.log(`🚀 Digital Checksheet Backend running on http://${displayHost}:${PORT}`);
       console.log(`📊 Environment: ${process.env.NODE_ENV}`);
       console.log(`🔗 Health: http://${displayHost}:${PORT}/health`);
       console.log(`📚 API: http://${displayHost}:${PORT}/api`);
@@ -152,6 +155,12 @@ process.on('unhandledRejection', (err) => {
 });
 
 process.on('uncaughtException', (err) => {
+
+  if (err.message && err.message.includes('rpc.sock')) {
+    console.log('⚠️ Monitor disabled (Windows permission)');
+    return;
+  }
+
   console.error('Uncaught Exception:', err);
   process.exit(1);
 });
