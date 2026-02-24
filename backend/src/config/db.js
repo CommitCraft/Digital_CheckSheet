@@ -236,17 +236,24 @@ const createTables = async () => {
 
   /* LINES */
 
-  await pool.execute(`
-  CREATE TABLE IF NOT EXISTS lines (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL UNIQUE,
-    status ENUM('active','inactive') DEFAULT 'active',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      ON UPDATE CURRENT_TIMESTAMP
-  ) ENGINE=InnoDB;
-  `);
+ await pool.execute(`
+      CREATE TABLE IF NOT EXISTS \`lines\` (
+        id INT AUTO_INCREMENT PRIMARY KEY,
 
+        name VARCHAR(100) NOT NULL UNIQUE,
+
+        status ENUM('active','inactive')
+          DEFAULT 'active',
+
+        created_at TIMESTAMP
+          DEFAULT CURRENT_TIMESTAMP,
+
+        updated_at TIMESTAMP
+          DEFAULT CURRENT_TIMESTAMP
+          ON UPDATE CURRENT_TIMESTAMP
+
+      ) ENGINE=InnoDB;
+    `);
 
   await pool.execute('SET FOREIGN_KEY_CHECKS=1;');
 

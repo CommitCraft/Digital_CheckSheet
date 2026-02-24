@@ -3,14 +3,14 @@ const db = require('../config/db');
 class Line {
 
   // ✅ CREATE
-  static async create(name) {
+  static async create(name, status = 'active') {
 
     const q = `
-      INSERT INTO lines
-      VALUES (?)
+      INSERT INTO \`lines\` (name, status)
+      VALUES (?, ?)
     `;
 
-    return db.execute(q, [name]);
+    return db.execute(q, [name, status]);
   }
 
 
@@ -19,7 +19,7 @@ class Line {
 
     const q = `
       SELECT *
-      FROM lines
+      FROM \`lines\`
       WHERE status = 'active'
       ORDER BY id DESC
     `;
@@ -33,7 +33,7 @@ class Line {
 
     const q = `
       SELECT *
-      FROM lines
+      FROM \`lines\`
       WHERE id = ?
     `;
 
@@ -46,13 +46,31 @@ class Line {
   // ✅ UPDATE
   static async update(id, name, status) {
 
+    const setClauses = [];
+    const params = [];
+
+    if (name !== undefined) {
+      setClauses.push('name = ?');
+      params.push(name);
+    }
+
+    if (status !== undefined) {
+      setClauses.push('status = ?');
+      params.push(status);
+    }
+
+    if (!setClauses.length) return null;
+
+
     const q = `
-      UPDATE lines
-      SET name = ?, status = ?
+      UPDATE \`lines\`
+      SET ${setClauses.join(', ')}
       WHERE id = ?
     `;
 
-    return db.execute(q, [name, status, id]);
+    params.push(id);
+
+    return db.execute(q, params);
   }
 
 
@@ -60,7 +78,7 @@ class Line {
   static async delete(id) {
 
     const q = `
-      UPDATE lines
+      UPDATE \`lines\`
       SET status = 'inactive'
       WHERE id = ?
     `;

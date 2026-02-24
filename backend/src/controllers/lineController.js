@@ -1,4 +1,6 @@
 const { Line, ActivityLog } = require('../models');
+const { validationResult } = require('express-validator');
+const { handleValidationError } = require('../middleware/errorHandler');
 
 class LineController {
 
@@ -28,6 +30,11 @@ class LineController {
   // ✅ GET ONE
   static async getLineById(req, res) {
     try {
+
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json(handleValidationError(errors));
+      }
 
       const id = Number(req.params.id);
 
@@ -60,9 +67,14 @@ class LineController {
   static async createLine(req, res) {
     try {
 
-      const { name } = req.body;
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json(handleValidationError(errors));
+      }
 
-      await Line.create(name);
+      const { name, status = 'active' } = req.body;
+
+      await Line.create(name, status);
 
 
       // Optional Log
@@ -106,8 +118,20 @@ class LineController {
   static async updateLine(req, res) {
     try {
 
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json(handleValidationError(errors));
+      }
+
       const id = Number(req.params.id);
       const { name, status } = req.body;
+
+      if (name === undefined && status === undefined) {
+        return res.status(400).json({
+          success: false,
+          message: 'At least one field (name or status) is required'
+        });
+      }
 
 
       const exists = await Line.getById(id);
@@ -141,6 +165,11 @@ class LineController {
   // ✅ DELETE
   static async deleteLine(req, res) {
     try {
+
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json(handleValidationError(errors));
+      }
 
       const id = Number(req.params.id);
 
