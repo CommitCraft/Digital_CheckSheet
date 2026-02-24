@@ -10,6 +10,9 @@ const statsRoutes = require("./statsRoutes");
 const exportRoutes = require("./exportRoutes");
 const systemRoutes = require("./systemRoutes");
 const lineRoutes = require("./lineRoutes"); // ✅ ADD THIS
+const stationRoutes = require('./stationRoutes');
+const brandRoutes = require('./brandRoutes');
+const modelRoutes = require('./modelRoutes');
 
 // API version and documentation info
 router.get("/", (req, res) => {
@@ -57,6 +60,9 @@ router.use("/stats", statsRoutes);
 router.use("/exports", exportRoutes);
 router.use("/system", systemRoutes);
 router.use("/lines", lineRoutes); // ✅ ADD THIS
+router.use("/stations", stationRoutes); // ✅ ADD THIS
+router.use("/brands", brandRoutes); // ✅ ADD THIS
+router.use("/models", modelRoutes); // ✅ ADD THIS
 
 // API documentation placeholder
 router.get("/docs", (req, res) => {
@@ -114,6 +120,28 @@ router.get("/docs", (req, res) => {
         "PUT /:id": "Update line",
         "DELETE /:id": "Delete line",
       },
+       "/api/stations": {
+        "GET /": "Get all stations",
+        "GET /:id": "Get station by ID",
+        "POST /": "Create station",
+        "PUT /:id": "Update station",
+        "DELETE /:id": "Delete station",
+      },
+       "/api/brands": {
+        "GET /": "Get all brands",
+        "GET /:id": "Get brand by ID",
+        "POST /": "Create brand",
+        "PUT /:id": "Update brand",
+        "DELETE /:id": "Delete brand",
+      },
+       "/api/models": {
+        "GET /": "Get all models",
+        "GET /:id": "Get model by ID",
+        "POST /": "Create model",
+        "PUT /:id": "Update model",
+        "DELETE /:id": "Delete model",
+       },
+       
       "/api/stats": {
         "GET /dashboard": "Get dashboard statistics",
         "GET /activity": "Get activity statistics (admin)",

@@ -92,6 +92,15 @@ lines: {
   delete: (id) => `/lines/${id}/hard`,
   status: (id) => `/lines/${id}/status`
 },
+
+// Stations
+stations: {
+  list: '/stations',
+  create: '/stations',
+  update: (id) => `/stations/${id}`,
+  delete: (id) => `/stations/${id}/hard`,
+  status: (id) => `/stations/${id}/status`
+},
   
   // Statistics
   stats: {

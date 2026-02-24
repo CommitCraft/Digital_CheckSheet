@@ -18,7 +18,8 @@ import {
   Minimize2,
   ChevronDown,
   ChevronRight,
-  LucideChartNoAxesGantt
+  LucideChartNoAxesGantt,
+  TrainIcon
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -66,6 +67,12 @@ const Sidebar = ({ isOpen, onClose }) => {
       name: 'Lines',
       path: '/lines',
       icon: LucideChartNoAxesGantt,
+      roles: ['Super Admin', 'Admin']
+    },
+    {
+      name: 'Station',
+      path: '/stations',
+      icon: TrainIcon,
       roles: ['Super Admin', 'Admin']
     }
   ];

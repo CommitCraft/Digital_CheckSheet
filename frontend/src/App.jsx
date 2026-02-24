@@ -19,6 +19,7 @@ import IframeTestPage from "./pages/IframeTestPage";
 import LoadingSpinner from "./components/LoadingSpinner";
 import ExternalPage from "./pages/ExternalPage";
 import LinesPage from "./pages/LinesPage";
+import StationsPage from "./pages/StationsPage";
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -109,6 +110,16 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+
+              <Route
+                path="/stations"
+                element={
+                  <ProtectedRoute>
+                    <StationsPage />
+                  </ProtectedRoute>
+                }
+              />
+
               <Route
                 path="/iframe-test"
                 element={
