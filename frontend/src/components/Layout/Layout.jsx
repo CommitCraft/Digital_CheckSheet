@@ -14,13 +14,10 @@ import {
   User,
   Globe,
   ExternalLink,
-  Maximize2,
-  Minimize2,
   ChevronDown,
   ChevronRight,
   LucideChartNoAxesGantt,
   TrainIcon,
-  BriefcaseMedicalIcon,
   BrainIcon,
   PartyPopper
 } from 'lucide-react';
