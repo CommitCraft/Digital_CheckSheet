@@ -6,7 +6,7 @@ class Line {
   static async create(name) {
 
     const q = `
-      INSERT INTO \`lines\` (name)
+      INSERT INTO lines
       VALUES (?)
     `;
 
@@ -19,7 +19,7 @@ class Line {
 
     const q = `
       SELECT *
-      FROM \`lines\`
+      FROM lines
       WHERE status = 'active'
       ORDER BY id DESC
     `;
@@ -33,7 +33,7 @@ class Line {
 
     const q = `
       SELECT *
-      FROM \`lines\`
+      FROM lines
       WHERE id = ?
     `;
 
@@ -47,7 +47,7 @@ class Line {
   static async update(id, name, status) {
 
     const q = `
-      UPDATE \`lines\`
+      UPDATE lines
       SET name = ?, status = ?
       WHERE id = ?
     `;
@@ -60,7 +60,7 @@ class Line {
   static async delete(id) {
 
     const q = `
-      UPDATE \`lines\`
+      UPDATE lines
       SET status = 'inactive'
       WHERE id = ?
     `;

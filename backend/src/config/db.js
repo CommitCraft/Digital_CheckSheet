@@ -237,7 +237,7 @@ const createTables = async () => {
   /* LINES */
 
   await pool.execute(`
-  CREATE TABLE IF NOT EXISTS \`lines\` (
+  CREATE TABLE IF NOT EXISTS lines (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE,
     status ENUM('active','inactive') DEFAULT 'active',
