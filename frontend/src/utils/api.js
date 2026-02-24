@@ -101,7 +101,31 @@ stations: {
   delete: (id) => `/stations/${id}/hard`,
   status: (id) => `/stations/${id}/status`
 },
+
+// Brands
+  brands: {
+  list: "/brands",
+  create: "/brands",
+  update: (id) => `/brands/${id}`,
+  delete: (id) => `/brands/${id}`
+},
+
+// Models
+models: {
+  list: "/models",
+  create: "/models",
+  update: (id) => `/models/${id}`,
+  delete: (id) => `/models/${id}`,
+  byBrand: (id) => `/models/by-brand/${id}`
+},
   
+  // Activity logs
+  activityLogs: {
+    list: '/activity-logs',
+    create: '/activity-logs',
+    get: (id) => `/activity-logs/${id}`,
+    update: (id) => `/activity-logs/${id}`,
+  },
   // Statistics
   stats: {
     dashboard: '/stats/dashboard',

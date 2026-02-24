@@ -20,6 +20,8 @@ import LoadingSpinner from "./components/LoadingSpinner";
 import ExternalPage from "./pages/ExternalPage";
 import LinesPage from "./pages/LinesPage";
 import StationsPage from "./pages/StationsPage";
+import BrandsPage from "./pages/BrandsPage";
+import ModelsPage from "./pages/ModelsPage";
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -116,6 +118,22 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <StationsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/brands"
+                element={
+                  <ProtectedRoute>
+                    <BrandsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/models"
+                element={
+                  <ProtectedRoute>
+                    <ModelsPage />
                   </ProtectedRoute>
                 }
               />

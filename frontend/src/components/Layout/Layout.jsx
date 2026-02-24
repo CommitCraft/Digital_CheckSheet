@@ -19,7 +19,10 @@ import {
   ChevronDown,
   ChevronRight,
   LucideChartNoAxesGantt,
-  TrainIcon
+  TrainIcon,
+  BriefcaseMedicalIcon,
+  BrainIcon,
+  PartyPopper
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -73,6 +76,18 @@ const Sidebar = ({ isOpen, onClose }) => {
       name: 'Station',
       path: '/stations',
       icon: TrainIcon,
+      roles: ['Super Admin', 'Admin']
+    },
+    {
+      name: 'Brand',
+      path: '/brands',
+      icon: BrainIcon,
+      roles: ['Super Admin', 'Admin']
+    },
+    {
+      name: 'Model',
+      path: '/models',
+      icon: PartyPopper,
       roles: ['Super Admin', 'Admin']
     }
   ];
