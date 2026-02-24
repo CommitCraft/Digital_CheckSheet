@@ -1,70 +1,26 @@
 const express = require('express');
 const router = express.Router();
 
-console.log('✅ lineRoutes loaded');
-
 const LineController = require('../controllers/lineController');
 
-const { auth } = require('../middleware/auth');
 
-const {
-  createLineValidation,
-  updateLineValidation,
-  lineIdValidation
-} = require('../middleware/validation');
+// Get All
+router.get('/', LineController.getAll);
 
+// Get One
+router.get('/:id', LineController.getOne);
 
-// ⚠️ Comment auth if debugging
-// router.use(auth);
+// Create
+router.post('/', LineController.create);
 
+// Update
+router.put('/:id', LineController.update);
 
-/* ===============================
-   GET ALL
-================================*/
+// Change Status
+router.post('/:id/status', LineController.changeStatus);
 
-router.get('/',
-  LineController.getLines
-);
-
-
-/* ===============================
-   GET ONE
-================================*/
-
-router.get('/:id',
-  lineIdValidation,
-  LineController.getLineById
-);
-
-
-/* ===============================
-   CREATE
-================================*/
-
-router.post('/',
-  createLineValidation,
-  LineController.createLine
-);
-
-
-/* ===============================
-   UPDATE
-================================*/
-
-router.put('/:id',
-  updateLineValidation,
-  LineController.updateLine
-);
-
-
-/* ===============================
-   DELETE
-================================*/
-
-router.delete('/:id',
-  lineIdValidation,
-  LineController.deleteLine
-);
+// Hard Delete
+router.delete('/:id/hard', LineController.hardDelete);
 
 
 module.exports = router;

@@ -17,7 +17,8 @@ import {
   Maximize2,
   Minimize2,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  LucideChartNoAxesGantt
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -59,6 +60,12 @@ const Sidebar = ({ isOpen, onClose }) => {
       name: 'Pages',
       path: '/pages',
       icon: FileText,
+      roles: ['Super Admin', 'Admin']
+    },
+    {
+      name: 'Lines',
+      path: '/lines',
+      icon: LucideChartNoAxesGantt,
       roles: ['Super Admin', 'Admin']
     }
   ];

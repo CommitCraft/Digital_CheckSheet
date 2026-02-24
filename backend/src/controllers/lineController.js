@@ -1,12 +1,10 @@
-const { Line, ActivityLog } = require('../models');
-const { validationResult } = require('express-validator');
-const { handleValidationError } = require('../middleware/errorHandler');
+const Line = require('../models/lineModel');
 
 class LineController {
 
+  // Get All
+  static async getAll(req, res) {
 
-  // ✅ GET ALL
-  static async getLines(req, res) {
     try {
 
       const rows = await Line.getAll();
@@ -17,28 +15,21 @@ class LineController {
       });
 
     } catch (err) {
-      console.error(err);
 
       res.status(500).json({
         success: false,
-        message: 'Failed to fetch lines'
+        message: err.message
       });
     }
   }
 
 
-  // ✅ GET ONE
-  static async getLineById(req, res) {
+  // Get One
+  static async getOne(req, res) {
+
     try {
 
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json(handleValidationError(errors));
-      }
-
-      const id = Number(req.params.id);
-
-      const line = await Line.getById(id);
+      const line = await Line.getById(req.params.id);
 
       if (!line) {
         return res.status(404).json({
@@ -53,149 +44,125 @@ class LineController {
       });
 
     } catch (err) {
-      console.error(err);
 
       res.status(500).json({
         success: false,
-        message: 'Failed to fetch line'
+        message: err.message
       });
     }
   }
 
 
-  // ✅ CREATE
-  static async createLine(req, res) {
+  // Create
+  static async create(req, res) {
+
     try {
 
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json(handleValidationError(errors));
-      }
+      const { name, status } = req.body;
 
-      const { name, status = 'active' } = req.body;
+      if (!name) {
+        return res.status(400).json({
+          success: false,
+          message: 'Name required'
+        });
+      }
 
       await Line.create(name, status);
 
-
-      // Optional Log
-      if (req.user) {
-        await ActivityLog.logUserAction(
-          req.user.id,
-          req.user.username,
-          'create',
-          'line',
-          null,
-          { name },
-          req
-        );
-      }
-
-      res.status(201).json({
+      res.json({
         success: true,
-        message: 'Line created successfully'
+        message: 'Line created'
       });
 
     } catch (err) {
 
-      if (err.code === 'ER_DUP_ENTRY') {
-        return res.status(409).json({
-          success: false,
-          message: 'Line already exists'
-        });
-      }
-
-      console.error(err);
-
       res.status(500).json({
         success: false,
-        message: 'Failed to create line'
+        message: err.message
       });
     }
   }
 
 
-  // ✅ UPDATE
-  static async updateLine(req, res) {
+  // Update
+  static async update(req, res) {
+
     try {
 
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json(handleValidationError(errors));
-      }
-
-      const id = Number(req.params.id);
       const { name, status } = req.body;
 
-      if (name === undefined && status === undefined) {
-        return res.status(400).json({
-          success: false,
-          message: 'At least one field (name or status) is required'
-        });
-      }
-
-
-      const exists = await Line.getById(id);
-
-      if (!exists) {
-        return res.status(404).json({
-          success: false,
-          message: 'Line not found'
-        });
-      }
-
-      await Line.update(id, name, status);
-
+      await Line.update(
+        req.params.id,
+        name,
+        status
+      );
 
       res.json({
         success: true,
-        message: 'Line updated successfully'
+        message: 'Line updated'
       });
 
     } catch (err) {
-      console.error(err);
 
       res.status(500).json({
         success: false,
-        message: 'Failed to update line'
+        message: err.message
       });
     }
   }
 
 
-  // ✅ DELETE
-  static async deleteLine(req, res) {
+  // Change Status
+  static async changeStatus(req, res) {
+
     try {
 
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json(handleValidationError(errors));
-      }
+      const { status } = req.body;
 
-      const id = Number(req.params.id);
-
-      const exists = await Line.getById(id);
-
-      if (!exists) {
-        return res.status(404).json({
+      if (!['active', 'inactive'].includes(status)) {
+        return res.status(400).json({
           success: false,
-          message: 'Line not found'
+          message: 'Invalid status'
         });
       }
 
-      await Line.delete(id);
-
+      await Line.changeStatus(
+        req.params.id,
+        status
+      );
 
       res.json({
         success: true,
-        message: 'Line deleted successfully'
+        message: 'Status updated'
       });
 
     } catch (err) {
-      console.error(err);
 
       res.status(500).json({
         success: false,
-        message: 'Failed to delete line'
+        message: err.message
+      });
+    }
+  }
+
+
+  // Delete
+  static async hardDelete(req, res) {
+
+    try {
+
+      await Line.hardDelete(req.params.id);
+
+      res.json({
+        success: true,
+        message: 'Line deleted'
+      });
+
+    } catch (err) {
+
+      res.status(500).json({
+        success: false,
+        message: err.message
       });
     }
   }

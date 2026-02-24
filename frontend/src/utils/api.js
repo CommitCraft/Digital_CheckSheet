@@ -83,6 +83,15 @@ export const endpoints = {
     delete: (id) => `/pages/${id}`,
     access: (pageUrl) => `/pages/access/${pageUrl}`
   },
+// Lines
+lines: {
+  list: '/lines',
+  create: '/lines',
+  get: (id) => `/lines/${id}`,
+  update: (id) => `/lines/${id}`,
+  delete: (id) => `/lines/${id}/hard`,
+  status: (id) => `/lines/${id}/status`
+},
   
   // Statistics
   stats: {

@@ -2,88 +2,98 @@ const db = require('../config/db');
 
 class Line {
 
-  // ✅ CREATE
+  // Create
   static async create(name, status = 'active') {
 
-    const q = `
+    const sql = `
       INSERT INTO \`lines\` (name, status)
       VALUES (?, ?)
     `;
 
-    return db.execute(q, [name, status]);
+    return db.execute(sql, [name, status]);
   }
 
 
-  // ✅ GET ALL
+  // Get All
   static async getAll() {
 
-    const q = `
+    const sql = `
       SELECT *
       FROM \`lines\`
-      WHERE status = 'active'
       ORDER BY id DESC
     `;
 
-    return db.execute(q);
+    return db.execute(sql);
   }
 
 
-  // ✅ GET BY ID
+  // Get By ID
   static async getById(id) {
 
-    const q = `
+    const sql = `
       SELECT *
       FROM \`lines\`
       WHERE id = ?
     `;
 
-    const rows = await db.execute(q, [id]);
+    const rows = await db.execute(sql, [id]);
 
     return rows[0] || null;
   }
 
 
-  // ✅ UPDATE
+  // Update
   static async update(id, name, status) {
 
-    const setClauses = [];
+    const set = [];
     const params = [];
 
     if (name !== undefined) {
-      setClauses.push('name = ?');
+      set.push('name = ?');
       params.push(name);
     }
 
     if (status !== undefined) {
-      setClauses.push('status = ?');
+      set.push('status = ?');
       params.push(status);
     }
 
-    if (!setClauses.length) return null;
+    if (!set.length) return;
 
-
-    const q = `
+    const sql = `
       UPDATE \`lines\`
-      SET ${setClauses.join(', ')}
+      SET ${set.join(', ')}
       WHERE id = ?
     `;
 
     params.push(id);
 
-    return db.execute(q, params);
+    return db.execute(sql, params);
   }
 
 
-  // ✅ SOFT DELETE
-  static async delete(id) {
+  // Change Status
+  static async changeStatus(id, status) {
 
-    const q = `
+    const sql = `
       UPDATE \`lines\`
-      SET status = 'inactive'
+      SET status = ?
       WHERE id = ?
     `;
 
-    return db.execute(q, [id]);
+    return db.execute(sql, [status, id]);
+  }
+
+
+  // Hard Delete
+  static async hardDelete(id) {
+
+    const sql = `
+      DELETE FROM \`lines\`
+      WHERE id = ?
+    `;
+
+    return db.execute(sql, [id]);
   }
 
 }
