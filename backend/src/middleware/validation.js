@@ -254,6 +254,51 @@ const pageUrlValidation = [
     .withMessage('Page URL is required')
 ];
 
+/* ===============================
+   LINE VALIDATION RULES
+================================*/
+
+// Create Line
+const createLineValidation = [
+  body('name')
+    .isLength({ min: 2, max: 100 })
+    .withMessage('Line name must be between 2 and 100 characters')
+    .matches(/^[a-zA-Z0-9\s_-]+$/)
+    .withMessage('Line name can contain letters, numbers, spaces, hyphens, and underscores'),
+
+  body('status')
+    .optional()
+    .isIn(['active', 'inactive'])
+    .withMessage('Status must be either active or inactive')
+];
+
+
+// Update Line
+const updateLineValidation = [
+  param('id')
+    .isInt({ min: 1 })
+    .withMessage('Line ID must be a positive integer'),
+
+  body('name')
+    .optional()
+    .isLength({ min: 2, max: 100 })
+    .withMessage('Line name must be between 2 and 100 characters')
+    .matches(/^[a-zA-Z0-9\s_-]+$/)
+    .withMessage('Line name can contain letters, numbers, spaces, hyphens, and underscores'),
+
+  body('status')
+    .optional()
+    .isIn(['active', 'inactive'])
+    .withMessage('Status must be either active or inactive')
+];
+
+
+// Line ID
+const lineIdValidation = [
+  param('id')
+    .isInt({ min: 1 })
+    .withMessage('Line ID must be a positive integer')
+];
 // Export validation rules
 const exportValidation = [
   query('format')
@@ -326,6 +371,11 @@ module.exports = {
   updatePageValidation,
   pageIdValidation,
   pageUrlValidation,
+
+    // Line validations
+  createLineValidation,
+  updateLineValidation,
+  lineIdValidation,
 
   // Export validations
   exportValidation,

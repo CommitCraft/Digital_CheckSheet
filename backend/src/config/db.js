@@ -142,7 +142,7 @@ const dropTables = async () => {
 
 const createTables = async () => {
 
-  await pool.execute('SET FOREIGN_KEY_CHECKS=0');
+  await pool.execute('SET FOREIGN_KEY_CHECKS=0;');
 
 
   /* USERS */
@@ -157,8 +157,9 @@ const createTables = async () => {
     last_login TIMESTAMP NULL,
     created_by INT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-  ) ENGINE=InnoDB
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      ON UPDATE CURRENT_TIMESTAMP
+  ) ENGINE=InnoDB;
   `);
 
 
@@ -170,7 +171,7 @@ const createTables = async () => {
     name VARCHAR(50) UNIQUE NOT NULL,
     description TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-  ) ENGINE=InnoDB
+  ) ENGINE=InnoDB;
   `);
 
 
@@ -184,7 +185,7 @@ const createTables = async () => {
     icon VARCHAR(255),
     is_external BOOLEAN DEFAULT 0,
     status ENUM('active','inactive') DEFAULT 'active'
-  ) ENGINE=InnoDB
+  ) ENGINE=InnoDB;
   `);
 
 
@@ -200,7 +201,7 @@ const createTables = async () => {
 
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
-  ) ENGINE=InnoDB
+  ) ENGINE=InnoDB;
   `);
 
 
@@ -216,7 +217,7 @@ const createTables = async () => {
 
     FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE,
     FOREIGN KEY (page_id) REFERENCES pages(id) ON DELETE CASCADE
-  ) ENGINE=InnoDB
+  ) ENGINE=InnoDB;
   `);
 
 
@@ -229,11 +230,25 @@ const createTables = async () => {
     action VARCHAR(100),
     details JSON,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-  ) ENGINE=InnoDB
+  ) ENGINE=InnoDB;
   `);
 
 
-  await pool.execute('SET FOREIGN_KEY_CHECKS=1');
+  /* LINES */
+
+  await pool.execute(`
+  CREATE TABLE IF NOT EXISTS \`lines\` (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    status ENUM('active','inactive') DEFAULT 'active',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      ON UPDATE CURRENT_TIMESTAMP
+  ) ENGINE=InnoDB;
+  `);
+
+
+  await pool.execute('SET FOREIGN_KEY_CHECKS=1;');
 
   console.log('✅ Tables Created');
 };

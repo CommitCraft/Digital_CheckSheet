@@ -5,6 +5,7 @@ const Page = require('./page');
 const ActivityLog = require('./activityLog');
 const LoginActivity = require('./loginActivity');
 const { UserRole, RolePage } = require('./userRole');
+const Line = require('./lineModel');
 
 module.exports = {
   User,
@@ -13,5 +14,6 @@ module.exports = {
   ActivityLog,
   LoginActivity,
   UserRole,
-  RolePage
+  RolePage,
+  Line
 };
