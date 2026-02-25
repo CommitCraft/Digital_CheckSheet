@@ -1,5 +1,5 @@
-import axios from 'axios';
-import Cookies from 'js-cookie';
+import axios from "axios";
+import Cookies from "js-cookie";
 
 // API Base configuration
 const API_BASE_URL = import.meta.env.VITE_API_URL;
@@ -7,202 +7,191 @@ const API_BASE_URL = import.meta.env.VITE_API_URL;
 // Create axios instance with default config
 export const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 10000,
+  timeout: 20000,
   headers: {
-    'Content-Type': 'application/json'
-  }
+    "Content-Type": "application/json",
+  },
 });
 
 // Request interceptor to add auth token
 api.interceptors.request.use(
   (config) => {
-    // Try localStorage first, then cookies as fallback
-    const localToken = localStorage.getItem('cmscrm-token');
-    const cookieToken = Cookies.get('cmscrm-token');
+    const localToken = localStorage.getItem("cmscrm-token");
+    const cookieToken = Cookies.get("cmscrm-token");
     const authToken = localToken || cookieToken;
-    
+
     if (authToken) {
       config.headers.Authorization = `Bearer ${authToken}`;
-      console.log(`API Request to ${config.url} with token:`, authToken.substring(0, 20) + '...');
-    } else {
-      console.log(`API Request to ${config.url} without token`);
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
 // API endpoints
 export const endpoints = {
-  // Auth
   auth: {
-    login: '/auth/login',
-    logout: '/auth/logout',
-    profile: '/auth/profile',
-    verify: '/auth/verify',
-    changePassword: '/auth/change-password',
-    loginHistory: '/auth/login-history'
+    login: "/auth/login",
+    logout: "/auth/logout",
+    profile: "/auth/profile",
+    verify: "/auth/verify",
+    changePassword: "/auth/change-password",
+    loginHistory: "/auth/login-history",
   },
-  
-  // Users
+
   users: {
-    list: '/users',
-    create: '/users',
+    list: "/users",
+    create: "/users",
     get: (id) => `/users/${id}`,
     update: (id) => `/users/${id}`,
     delete: (id) => `/users/${id}`,
     roles: (id) => `/users/${id}/roles`,
     pages: (id) => `/users/${id}/pages`,
-    assignRole: '/users/assign-role',
-    removeRole: '/users/remove-role'
+    assignRole: "/users/assign-role",
+    removeRole: "/users/remove-role",
   },
-  
-  // Roles
+
   roles: {
-    list: '/roles',
-    simple: '/roles/simple',
-    create: '/roles',
+    list: "/roles",
+    simple: "/roles/simple",
+    create: "/roles",
     get: (id) => `/roles/${id}`,
     update: (id) => `/roles/${id}`,
     delete: (id) => `/roles/${id}`,
     pages: (id) => `/roles/${id}/pages`,
-    assignPages: '/roles/assign-pages',
-    pageOrder: (id) => `/roles/${id}/page-order`
+    assignPages: "/roles/assign-pages",
+    pageOrder: (id) => `/roles/${id}/page-order`,
   },
-  
-  // Pages
+
   pages: {
-    list: '/pages',
-    simple: '/pages/simple',
-    myPages: '/pages/my-pages',
-    create: '/pages',
+    list: "/pages",
+    simple: "/pages/simple",
+    myPages: "/pages/my-pages",
+    myPagesHierarchy: "/pages/my-pages-hierarchy",
+    create: "/pages",
     get: (id) => `/pages/${id}`,
     update: (id) => `/pages/${id}`,
     delete: (id) => `/pages/${id}`,
-    access: (pageUrl) => `/pages/access/${pageUrl}`
+    access: (pageUrl) => `/pages/access/${pageUrl}`,
   },
-// Lines
-lines: {
-  list: '/lines',
-  create: '/lines',
-  get: (id) => `/lines/${id}`,
-  update: (id) => `/lines/${id}`,
-  delete: (id) => `/lines/${id}/hard`,
-  status: (id) => `/lines/${id}/status`
-},
 
-// Stations
-stations: {
-  list: '/stations',
-  create: '/stations',
-  update: (id) => `/stations/${id}`,
-  delete: (id) => `/stations/${id}/hard`,
-  status: (id) => `/stations/${id}/status`
-},
+  // Lines
+  lines: {
+    list: "/lines",
+    create: "/lines",
+    get: (id) => `/lines/${id}`,
+    update: (id) => `/lines/${id}`,
+    status: (id) => `/lines/${id}/status`,
+    hardDelete: (id) => `/lines/${id}/hard`,
+  },
 
-// Brands
+  // Stations
+  stations: {
+    list: "/stations",
+    create: "/stations",
+    get: (id) => `/stations/${id}`,
+    update: (id) => `/stations/${id}`,
+    status: (id) => `/stations/${id}/status`,
+    hardDelete: (id) => `/stations/${id}/hard`,
+  },
+
+  // Brands
   brands: {
-  list: "/brands",
-  create: "/brands",
-  update: (id) => `/brands/${id}`,
-  delete: (id) => `/brands/${id}`
-},
+    list: "/brands",
+    create: "/brands",
+    get: (id) => `/brands/${id}`,
+    update: (id) => `/brands/${id}`,
+    delete: (id) => `/brands/${id}`,
+  },
 
-// Models
-models: {
-  list: "/models",
-  create: "/models",
-  update: (id) => `/models/${id}`,
-  delete: (id) => `/models/${id}`,
-  byBrand: (id) => `/models/by-brand/${id}`
-},
-  
-  // Activity logs
-  activityLogs: {
-    list: '/activity-logs',
-    create: '/activity-logs',
-    get: (id) => `/activity-logs/${id}`,
-    update: (id) => `/activity-logs/${id}`,
+  // Models
+  models: {
+    list: "/models",
+    create: "/models",
+    get: (id) => `/models/${id}`,
+    update: (id) => `/models/${id}`,
+    delete: (id) => `/models/${id}`,
+    byBrand: (id) => `/models/by-brand/${id}`,
   },
   // Statistics
   stats: {
-    dashboard: '/stats/dashboard',
-    activity: '/stats/activity',
-    login: '/stats/login',
-    api: '/stats/api',
-    health: '/stats/health',
-    recentActivity: '/stats/recent-activity',
-    activeUsers: '/stats/active-users'
+    dashboard: "/stats/dashboard",
+    activity: "/stats/activity",
+    login: "/stats/login",
+    api: "/stats/api",
+    health: "/stats/health",
+    recentActivity: "/stats/recent-activity",
+    activeUsers: "/stats/active-users",
   },
-  
-  // Export
+
   exports: {
-    users: '/exports/users',
-    roles: '/exports/roles',
-    pages: '/exports/pages',
-    activityLogs: '/exports/activity-logs',
-    loginActivities: '/exports/login-activities',
-    download: (filename) => `/exports/download/${filename}`
+    users: "/exports/users",
+    roles: "/exports/roles",
+    pages: "/exports/pages",
+    activityLogs: "/exports/activity-logs",
+    loginActivities: "/exports/login-activities",
+    download: (filename) => `/exports/download/${filename}`,
   },
-  
-  // System monitoring
+
   system: {
-    performance: '/system/performance',
-    info: '/system/info',
-    processes: '/system/processes',
-    status: '/system/status',
-    health: '/system/health'
-  }
+    performance: "/system/performance",
+    info: "/system/info",
+    processes: "/system/processes",
+    status: "/system/status",
+    health: "/system/health",
+  },
 };
 
-// API service functions
+// ✅ API service functions (FIXED GET PARAMS)
 export const apiService = {
-  // Generic CRUD operations
-  get: (url, params = {}) => api.get(url, { params }),
-  post: (url, data = {}) => api.post(url, data),
-  put: (url, data = {}) => api.put(url, data),
-  delete: (url) => api.delete(url),
-  
-  // File upload
-  upload: (url, formData) => api.post(url, formData, {
-    headers: { 'Content-Type': 'multipart/form-data' }
-  }),
-  
-  // Download file
+  // If caller passes { params: {...} } treat it as axios config,
+  // else treat it as params object.
+  get: (url, paramsOrConfig = {}) => {
+    const isAxiosConfig =
+      paramsOrConfig &&
+      typeof paramsOrConfig === "object" &&
+      ("params" in paramsOrConfig ||
+        "headers" in paramsOrConfig ||
+        "responseType" in paramsOrConfig);
+
+    return isAxiosConfig
+      ? api.get(url, paramsOrConfig)
+      : api.get(url, { params: paramsOrConfig });
+  },
+
+  post: (url, data = {}, config = {}) => api.post(url, data, config),
+  put: (url, data = {}, config = {}) => api.put(url, data, config),
+  delete: (url, config = {}) => api.delete(url, config),
+
+  upload: (url, formData) =>
+    api.post(url, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    }),
+
   download: async (url, filename) => {
-    const response = await api.get(url, { responseType: 'blob' });
+    const response = await api.get(url, { responseType: "blob" });
     const blob = new Blob([response.data]);
     const downloadUrl = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = downloadUrl;
     link.download = filename;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     window.URL.revokeObjectURL(downloadUrl);
-  }
+  },
 };
 
 // Response interceptor for error handling
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Handle common errors
-    if (error.code === 'ECONNABORTED') {
-      console.error('Request timeout');
-    } else if (error.response) {
-      // Server responded with error status
-      console.error('API Error:', error.response.data);
-      
-      // Don't handle 401 here - let the AuthContext handle it to prevent loops
-      if (error.response.status === 401) {
-        console.log('Authentication error - handled by AuthContext');
-      }
-    } else if (error.request) {
-      // Network error
-      console.error('Network Error:', error.request);
+    if (error?.code === "ECONNABORTED") {
+      console.error("Request timeout");
+    } else if (error?.response) {
+      console.error("API Error:", error.response.data);
+    } else if (error?.request) {
+      console.error("Network Error:", error.request);
     }
     return Promise.reject(error);
   }
