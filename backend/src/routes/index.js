@@ -13,8 +13,6 @@ const lineRoutes = require("./lineRoutes"); // ✅ ADD THIS
 const stationRoutes = require('./stationRoutes');
 const brandRoutes = require('./brandRoutes');
 const modelRoutes = require('./modelRoutes');
-const templateRoutes = require('./templateRoutes');
-const templateSubmissionRoutes = require('./templateSubmissionRoutes');
 
 // API version and documentation info
 router.get("/", (req, res) => {
@@ -31,12 +29,6 @@ router.get("/", (req, res) => {
       stats: "/api/stats",
       exports: "/api/exports",
       system: "/api/system",
-      lines: "/api/lines", // ✅ ADD THIS
-      stations: "/api/stations", // ✅ ADD THIS
-      brands: "/api/brands", // ✅ ADD THIS
-      models: "/api/models", // ✅ ADD THIS
-      templates: "/api/templates", // ✅ ADD THIS
-      templateSubmissions: "/api/template-submissions", // ✅ ADD THIS
     },
     documentation: {
       swagger: "/api/docs",
@@ -71,8 +63,6 @@ router.use("/lines", lineRoutes); // ✅ ADD THIS
 router.use("/stations", stationRoutes); // ✅ ADD THIS
 router.use("/brands", brandRoutes); // ✅ ADD THIS
 router.use("/models", modelRoutes); // ✅ ADD THIS
-router.use("/templates", templateRoutes); // ✅ ADD THIS
-router.use("/template-submissions", templateSubmissionRoutes); // ✅ ADD THIS
 
 // API documentation placeholder
 router.get("/docs", (req, res) => {
@@ -150,18 +140,6 @@ router.get("/docs", (req, res) => {
         "POST /": "Create model",
         "PUT /:id": "Update model",
         "DELETE /:id": "Delete model",
-       },
-       "/api/templates": {
-        "GET /": "Get all templates",
-        "GET /:id": "Get template by ID",
-        "POST /": "Create template",
-        "PUT /:id": "Update template",
-        "DELETE /:id": "Delete template",
-      },
-       "/api/template-submissions": {
-        "GET /": "Get all template submissions",
-        "GET /:id": "Get template submission by ID",
-        "POST /": "Create template submission",
        },
        
       "/api/stats": {

@@ -126,20 +126,6 @@ models: {
     get: (id) => `/activity-logs/${id}`,
     update: (id) => `/activity-logs/${id}`,
   },
-  // Templates
-  templates: {
-    list: "/templates",
-    create: "/templates",
-    update: (id) => `/templates/${id}`,
-    softDelete: (id) => `/templates/${id}/soft-delete`,
-    restore: (id) => `/templates/${id}/restore`,
-    hardDelete: (id) => `/templates/${id}/hard-delete`,
-  },
-  // Submissions
-  submissions: {
-    create: "/submissions",
-    byTemplate: (id) => `/submissions/${id}`,
-  },
   // Statistics
   stats: {
     dashboard: '/stats/dashboard',

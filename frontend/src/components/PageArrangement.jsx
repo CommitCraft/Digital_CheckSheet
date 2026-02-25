@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { GripVertical, ChevronRight, ChevronDown, Trash2, Plus } from 'lucide-react';
+import { GripVertical, ChevronDown, ChevronUp, Trash2, Plus, FolderOpen } from 'lucide-react';
 
 const PageArrangement = ({ pages, value = [], onChange }) => {
   const [pagesWithOrder, setPagesWithOrder] = useState(value || []);
   const [expandedPages, setExpandedPages] = useState(new Set());
+  const [showCatInput, setShowCatInput] = useState(false);
+  const [newCatName, setNewCatName] = useState('');
+  const catInputRef = useRef(null);
   const isInternalUpdate = useRef(false);
-  const prevValueRef = useRef(null); // Initialize with null, not value
+  const prevValueRef = useRef(null);
 
   // Log on mount and when value changes
   useEffect(() => {
@@ -159,6 +162,37 @@ const PageArrangement = ({ pages, value = [], onChange }) => {
     makeSubmenu(pageId, null);
   };
 
+  const addCategory = () => {
+    const name = newCatName.trim();
+    if (!name) return;
+    const catId = `cat_${Date.now()}`;
+    const newCat = {
+      page_id: catId,
+      name,
+      url: null,
+      icon: null,
+      is_category: true,
+      parent_page_id: null,
+      display_order: pagesWithOrder.filter(p => p.parent_page_id === null).length,
+    };
+    const updated = [...pagesWithOrder, newCat];
+    setExpandedPages(prev => new Set([...prev, catId]));
+    setPagesWithOrder(updated);
+    isInternalUpdate.current = true;
+    onChange(updated);
+    setNewCatName('');
+    setShowCatInput(false);
+  };
+
+  const renameHeader = (pageId, newLabel) => {
+    const updated = pagesWithOrder.map(p =>
+      p.page_id === pageId ? { ...p, name: newLabel } : p
+    );
+    setPagesWithOrder(updated);
+    isInternalUpdate.current = true;
+    onChange(updated);
+  };
+
   const toggleExpanded = (pageId) => {
     const newExpanded = new Set(expandedPages);
     if (newExpanded.has(pageId)) {
@@ -173,47 +207,80 @@ const PageArrangement = ({ pages, value = [], onChange }) => {
     const children = pagesWithOrder.filter(p => p.parent_page_id === page.page_id);
     const hasChildren = children.length > 0;
     const isExpanded = expandedPages.has(page.page_id);
-    const mainMenuPages = pagesWithOrder.filter(p => p.parent_page_id === null && p.page_id !== page.page_id);
+    const isCategory = !!page.is_category;
+    const isMainHeader = depth === 0;
 
     return (
-      <div key={page.page_id} className="mb-1">
-        <div 
-          className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-700 rounded border border-gray-200 dark:border-gray-600 group hover:bg-gray-100 dark:hover:bg-gray-600"
+      <div key={page.page_id} className="mb-2">
+        <div
+          className={`flex items-center gap-2 p-2 rounded border group transition-colors ${
+            isMainHeader
+              ? isCategory
+                ? 'bg-indigo-100 dark:bg-indigo-900/40 border-indigo-300 dark:border-indigo-600 hover:bg-indigo-200 dark:hover:bg-indigo-900/60'
+                : 'bg-gray-200 dark:bg-gray-600 border-gray-300 dark:border-gray-500 hover:bg-gray-300 dark:hover:bg-gray-500'
+              : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600'
+          }`}
           style={{ marginLeft: `${depth * 24}px` }}
         >
-          {/* Expand/Collapse button */}
-          {hasChildren && (
+          {/* Expand/Collapse button — always visible for main headers (depth 0) */}
+          {(hasChildren || depth === 0) ? (
             <button
               type="button"
               onClick={() => toggleExpanded(page.page_id)}
-              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-200"
             >
               {isExpanded ? (
-                <ChevronDown className="h-4 w-4" />
+                <ChevronUp className="h-4 w-4" />
               ) : (
-                <ChevronRight className="h-4 w-4" />
+                <ChevronDown className="h-4 w-4" />
               )}
             </button>
+          ) : (
+            <div className="w-4" />
           )}
-          
-          {!hasChildren && <div className="w-4" />}
 
           {/* Drag handle (visual only for now) */}
           <GripVertical className="h-4 w-4 text-gray-400" />
 
           {/* Page info */}
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                {page.name}
-              </span>
-              {page.parent_page_id && (
-                <span className="text-xs px-2 py-0.5 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded">
-                  Submenu
+            {isMainHeader ? (
+              /* Editable header input for main pages / categories */
+              <div className="flex items-center gap-1.5">
+                {isCategory && <FolderOpen className="h-3.5 w-3.5 text-indigo-400 shrink-0" />}
+                <input
+                  type="text"
+                  value={page.name}
+                  onChange={(e) => renameHeader(page.page_id, e.target.value)}
+                  onClick={(e) => e.stopPropagation()}
+                  placeholder="Category label…"
+                  className={`w-full text-sm font-bold uppercase tracking-wide bg-transparent border-b border-dashed focus:outline-none placeholder-gray-400 ${
+                    isCategory
+                      ? 'text-indigo-700 dark:text-indigo-300 border-indigo-400 focus:border-indigo-600'
+                      : 'text-gray-800 dark:text-gray-100 border-gray-400 focus:border-blue-500'
+                  }`}
+                />
+                {isCategory && (
+                  <span className="shrink-0 text-xs px-1.5 py-0.5 rounded bg-indigo-200 dark:bg-indigo-800 text-indigo-700 dark:text-indigo-200 font-semibold">
+                    Category
+                  </span>
+                )}
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                  {page.name}
                 </span>
-              )}
-            </div>
-            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{page.url}</p>
+                {page.parent_page_id && (
+                  <span className="text-xs px-2 py-0.5 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded">
+                    Sub-page
+                  </span>
+                )}
+              </div>
+            )}
+            {depth > 0 && (
+              <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{page.url}</p>
+            )}
           </div>
 
           {/* Actions */}
@@ -236,32 +303,7 @@ const PageArrangement = ({ pages, value = [], onChange }) => {
               ↓
             </button>
 
-            {/* Convert to submenu or main menu */}
-            {!page.parent_page_id ? (
-              // It's a main menu - show submenu dropdown
-              <select
-                value=""
-                onChange={(e) => makeSubmenu(page.page_id, parseInt(e.target.value))}
-                className="text-xs px-1 py-1 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                title="Make submenu of..."
-              >
-                <option value="">Make Submenu...</option>
-                {mainMenuPages.map(mp => (
-                  <option key={mp.page_id} value={mp.page_id}>
-                    ↪ {mp.name}
-                  </option>
-                ))}
-              </select>
-            ) : (
-              <button
-                type="button"
-                onClick={() => makeMainMenu(page.page_id)}
-                className="text-xs px-2 py-1 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-                title="Make main menu"
-              >
-                ↖ Main
-              </button>
-            )}
+
 
             {/* Remove button */}
             <button
@@ -275,8 +317,46 @@ const PageArrangement = ({ pages, value = [], onChange }) => {
           </div>
         </div>
 
-        {/* Render children */}
-        {hasChildren && isExpanded && (
+        {/* Render children + inline add-sub-page for main headers */}
+        {depth === 0 && isExpanded && (
+          <div className="mt-1 ml-3 border-l-2 border-gray-300 dark:border-gray-600 pl-2">
+            {children
+              .sort((a, b) => a.display_order - b.display_order)
+              .map(child => renderPage(child, depth + 1))}
+
+            {/* Inline sub-page selector */}
+            {(() => {
+              const subAvailable = pages.filter(
+                pg => !pagesWithOrder.some(p => p.page_id === pg.id)
+              );
+              return subAvailable.length > 0 ? (
+                <div className="flex items-center gap-2 mt-1 py-1">
+                  <Plus className="h-3.5 w-3.5 text-gray-400 shrink-0" />
+                  <select
+                    value=""
+                    onChange={(e) => {
+                      if (e.target.value) {
+                        addPage(parseInt(e.target.value), page.page_id);
+                        e.target.value = '';
+                      }
+                    }}
+                    className="flex-1 text-xs px-2 py-1 border border-dashed border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  >
+                    <option value="">+ Add sub-page here…</option>
+                    {subAvailable.map(pg => (
+                      <option key={pg.id} value={pg.id}>
+                        {pg.name} ({pg.url})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              ) : null;
+            })()}
+          </div>
+        )}
+
+        {/* Non-main (deeper) children render normally */}
+        {depth > 0 && hasChildren && isExpanded && (
           <div className="mt-1">
             {children
               .sort((a, b) => a.display_order - b.display_order)
@@ -292,34 +372,67 @@ const PageArrangement = ({ pages, value = [], onChange }) => {
     .sort((a, b) => a.display_order - b.display_order);
 
   const availablePages = getAvailablePages();
+  const hasCategories = pagesWithOrder.some(p => p.is_category);
 
   return (
     <div className="space-y-4">
-      {/* Add Page Section */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          Add Pages to Role
+      {/* Toolbar: Add Category only */}
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          Categories
         </label>
-        <select
-          value=""
-          onChange={(e) => {
-            if (e.target.value) {
-              addPage(parseInt(e.target.value));
-              e.target.value = '';
-            }
-          }}
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="">-- Select a page to add --</option>
-          {availablePages.map(page => (
-            <option key={page.id} value={page.id}>
-              {page.name} ({page.url})
-            </option>
-          ))}
-        </select>
-        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-          {availablePages.length} pages available to add
-        </p>
+
+        {/* Add Category button / inline input */}
+        {!showCatInput ? (
+          <button
+            type="button"
+            onClick={() => {
+              setShowCatInput(true);
+              setTimeout(() => catInputRef.current?.focus(), 50);
+            }}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium transition-colors"
+          >
+            <FolderOpen className="h-4 w-4" />
+            Add Category
+          </button>
+        ) : (
+          <div className="flex gap-2 items-center p-2 rounded-lg border border-indigo-300 dark:border-indigo-600 bg-indigo-50 dark:bg-indigo-900/30">
+            <FolderOpen className="h-4 w-4 text-indigo-500 shrink-0" />
+            <input
+              ref={catInputRef}
+              type="text"
+              value={newCatName}
+              onChange={(e) => setNewCatName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') addCategory();
+                if (e.key === 'Escape') { setShowCatInput(false); setNewCatName(''); }
+              }}
+              placeholder="Category name (e.g. Reports, Tools…)"
+              className="flex-1 text-sm px-2 py-1 rounded border border-indigo-300 dark:border-indigo-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+            <button
+              type="button"
+              onClick={addCategory}
+              disabled={!newCatName.trim()}
+              className="px-3 py-1 rounded bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 text-white text-sm font-medium transition-colors"
+            >
+              Create
+            </button>
+            <button
+              type="button"
+              onClick={() => { setShowCatInput(false); setNewCatName(''); }}
+              className="px-2 py-1 rounded text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 text-sm"
+            >
+              Cancel
+            </button>
+          </div>
+        )}
+
+        {!hasCategories && (
+          <p className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1">
+            <span>⚠</span> Create a category first — pages can only be added inside a category.
+          </p>
+        )}
       </div>
 
       {/* Page List */}
@@ -330,9 +443,12 @@ const PageArrangement = ({ pages, value = [], onChange }) => {
         
         {pagesWithOrder.length === 0 ? (
           <div className="p-8 text-center border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg">
-            <Plus className="h-8 w-8 mx-auto text-gray-400 mb-2" />
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              No pages added yet. Select pages from the dropdown above.
+            <FolderOpen className="h-8 w-8 mx-auto text-gray-400 mb-2" />
+            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+              No categories yet.
+            </p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+              Start by clicking <strong>Add Category</strong>, then add pages inside it.
             </p>
           </div>
         ) : (
@@ -344,7 +460,7 @@ const PageArrangement = ({ pages, value = [], onChange }) => {
         {pagesWithOrder.length > 0 && (
           <div className="mt-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md">
             <p className="text-xs text-blue-800 dark:text-blue-200">
-              <strong>Tips:</strong> Use ↑↓ to reorder • Use "Make Submenu..." to nest under another page • Use "↖ Main" to convert back to main menu • Click ▶/▼ to expand/collapse submenus
+              <strong>Tips:</strong> Use ↑↓ to reorder categories • Expand a category (▼) then use its dropdown to add pages inside • Use ↑↓ on pages to reorder within a category
             </p>
           </div>
         )}

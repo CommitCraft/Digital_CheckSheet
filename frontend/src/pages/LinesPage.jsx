@@ -88,60 +88,63 @@ const LineModal = ({ open, onClose, line, refresh }) => {
 
   if (!open) return null;
 
-
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-md mx-4">
+        {/* Modal header */}
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+            {line ? "Edit Line" : "Add Line"}
+          </h2>
+        </div>
 
-      <div className="bg-white dark:bg-gray-800 w-full max-w-md rounded-lg p-6">
+        <form onSubmit={submit} className="p-6 space-y-4">
+          {/* Name */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Line Name
+            </label>
+            <input
+              value={name}
+              onChange={e => setName(e.target.value)}
+              placeholder="Enter line name"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white"
+            />
+          </div>
 
-        <h2 className="text-lg font-bold mb-4">
-          {line ? "Edit Line" : "Add Line"}
-        </h2>
+          {/* Status */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Status
+            </label>
+            <select
+              value={status}
+              onChange={e => setStatus(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white"
+            >
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </div>
 
-
-        <form onSubmit={submit} className="space-y-4">
-
-          <input
-            value={name}
-            onChange={e => setName(e.target.value)}
-            placeholder="Line name"
-            className="w-full border px-3 py-2 rounded-md dark:bg-gray-700"
-          />
-
-
-          <select
-            value={status}
-            onChange={e => setStatus(e.target.value)}
-            className="w-full border px-3 py-2 rounded-md dark:bg-gray-700"
-          >
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-          </select>
-
-
-          <div className="flex justify-end gap-3">
-
+          {/* Buttons */}
+          <div className="flex justify-end gap-3 pt-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 border rounded"
+              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
             >
               Cancel
             </button>
-
             <button
               disabled={loading}
-              className="px-4 py-2 bg-primary-600 text-white rounded disabled:opacity-50"
+              className="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {loading ? "Saving..." : "Save"}
             </button>
-
           </div>
-
         </form>
-
       </div>
-
     </div>
   );
 };
@@ -262,20 +265,17 @@ const LinesPage = () => {
      UI
   ================================*/
 
-  const badge = (s) => {
-
-    return (
-      <span
-        className={`px-2 py-1 rounded-full text-xs
-          ${s === "active"
-            ? "bg-green-100 text-green-700"
-            : "bg-red-100 text-red-700"}
-        `}
-      >
-        {s}
-      </span>
-    );
-  };
+  const badge = (s) => (
+    <span
+      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+        s === 'active'
+          ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+          : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+      }`}
+    >
+      {s.charAt(0).toUpperCase() + s.slice(1)}
+    </span>
+  );
 
 
   return (
@@ -286,50 +286,40 @@ const LinesPage = () => {
 
         {/* Header */}
         <div className="flex justify-between items-center">
-
-          <h1 className="text-3xl font-bold flex gap-2">
-            <Settings />
-            Lines
-          </h1>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+              <Settings className="h-7 w-7 text-primary-600" />
+              Lines
+            </h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Manage production lines</p>
+          </div>
 
           <button
-            onClick={() => {
-              setSelected(null);
-              setOpen(true);
-            }}
-            className="px-5 py-2 bg-primary-600 text-white rounded flex gap-2"
+            onClick={() => { setSelected(null); setOpen(true); }}
+            className="flex items-center gap-2 px-4 py-2.5 bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold rounded-xl shadow-sm hover:shadow-md transition-all duration-200"
           >
-            <Plus size={18} />
-            Add
+            <Plus size={16} />
+            Add Line
           </button>
-
         </div>
 
 
         {/* Search */}
-        <div className="bg-white dark:bg-gray-800 p-4 rounded">
-
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
           <div className="relative">
-
-            <Search
-              size={18}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-            />
-
+            <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               value={search}
-              onChange={e => setSearch(e.target.value)}
-              placeholder="Search..."
-              className="pl-10 pr-4 py-2 border w-full rounded dark:bg-gray-700"
+              onChange={e => { setSearch(e.target.value); setPage(1); }}
+              placeholder="Search lines..."
+              className="pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white text-sm"
             />
-
           </div>
-
         </div>
 
 
         {/* Table */}
-        <div className="bg-white dark:bg-gray-800 rounded shadow">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
 
           {loading ? (
 
@@ -342,79 +332,60 @@ const LinesPage = () => {
             <>
               <table className="w-full">
 
-                <thead className="bg-gray-100 dark:bg-gray-900">
-
+                <thead className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
                   <tr>
-                    <th className="p-3">ID</th>
-                    <th className="p-3 text-left">Name</th>
-                    <th className="p-3">Status</th>
-                    <th className="p-3 text-right">Actions</th>
+                    <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-16">#</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Name</th>
+                    <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                    <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
                   </tr>
-
                 </thead>
 
                 <tbody>
 
                   {lines.length === 0 ? (
-
                     <tr>
-                      <td colSpan="4" className="p-6 text-center text-gray-500">
-                        No data
+                      <td colSpan="4" className="px-4 py-12 text-center text-gray-500 dark:text-gray-400">
+                        <div className="flex flex-col items-center gap-2">
+                          <Settings className="h-8 w-8 text-gray-300 dark:text-gray-600" />
+                          <p className="text-sm font-medium">No lines found</p>
+                        </div>
                       </td>
                     </tr>
-
                   ) : (
-
                     lines.map(l => (
-
                       <tr
                         key={l.id}
-                        className="border-t hover:bg-gray-50 dark:hover:bg-gray-700"
+                        className="border-t border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                       >
-
-                        <td className="p-3 text-center">{l.id}</td>
-
-                        <td className="p-3">{l.name}</td>
-
-                        <td className="p-3 text-center">
-                          {badge(l.status)}
+                        <td className="px-4 py-3 text-center text-sm text-gray-500 dark:text-gray-400 font-mono">{l.id}</td>
+                        <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-white">{l.name}</td>
+                        <td className="px-4 py-3 text-center">{badge(l.status)}</td>
+                        <td className="px-4 py-3 text-right">
+                          <div className="flex items-center justify-end gap-1">
+                            <button
+                              onClick={() => toggleStatus(l)}
+                              title="Toggle Status"
+                              className="p-1.5 text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-lg transition-colors"
+                            >
+                              <RefreshCcw size={15} />
+                            </button>
+                            <button
+                              onClick={() => { setSelected(l); setOpen(true); }}
+                              title="Edit"
+                              className="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                            >
+                              <Edit size={15} />
+                            </button>
+                            <button
+                              onClick={() => deleteLine(l.id)}
+                              title="Delete"
+                              className="p-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                            >
+                              <Trash2 size={15} />
+                            </button>
+                          </div>
                         </td>
-
-                        <td className="p-3 text-right space-x-2">
-
-
-                          {/* Status */}
-                          <button
-                            onClick={() => toggleStatus(l)}
-                            className="text-yellow-600"
-                            title="Toggle Status"
-                          >
-                            <RefreshCcw size={16} />
-                          </button>
-
-
-                          {/* Edit */}
-                          <button
-                            onClick={() => {
-                              setSelected(l);
-                              setOpen(true);
-                            }}
-                            className="text-blue-600"
-                          >
-                            <Edit size={16} />
-                          </button>
-
-
-                          {/* Delete */}
-                          <button
-                            onClick={() => deleteLine(l.id)}
-                            className="text-red-600"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-
-                        </td>
-
                       </tr>
                     ))
                   )}
@@ -426,31 +397,27 @@ const LinesPage = () => {
 
               {/* Pagination */}
               {total > 1 && (
-
-                <div className="flex justify-between p-4 border-t">
-
-                  <span>
-                    Page {page} / {total}
+                <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-gray-700">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                    Page <span className="font-semibold text-gray-900 dark:text-white">{page}</span> of{' '}
+                    <span className="font-semibold text-gray-900 dark:text-white">{total}</span>
                   </span>
-
-                  <div className="space-x-2">
-
+                  <div className="flex items-center gap-1">
                     <button
                       disabled={page === 1}
                       onClick={() => setPage(p => p - 1)}
+                      className="p-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                     >
-                      <ChevronLeft />
+                      <ChevronLeft size={16} />
                     </button>
-
                     <button
                       disabled={page === total}
                       onClick={() => setPage(p => p + 1)}
+                      className="p-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                     >
-                      <ChevronRight />
+                      <ChevronRight size={16} />
                     </button>
-
                   </div>
-
                 </div>
               )}
 

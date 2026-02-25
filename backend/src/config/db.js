@@ -109,6 +109,7 @@ const dropTables = async () => {
     "api_stats",
     "login_activities",
     "activity_logs",
+    "role_page_categories",
     "role_pages_order",
     "role_pages",
     "user_roles",
@@ -284,57 +285,29 @@ const createTables = async () => {
 ) ENGINE=InnoDB;
     `);
 
-    //  Templates table
-   await pool.execute(`
-  CREATE TABLE IF NOT EXISTS \`templates\` (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-
-    name VARCHAR(150) NOT NULL,
-
-    entity_type ENUM('line','station','model') NOT NULL,
-    entity_id INT NOT NULL,
-
-    version INT DEFAULT 1,
-
-    schema_json JSON NOT NULL,
-
-    is_deleted BOOLEAN DEFAULT FALSE,
-    deleted_at TIMESTAMP NULL DEFAULT NULL,
-
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      ON UPDATE CURRENT_TIMESTAMP,
-
-    INDEX idx_entity (entity_type, entity_id),
-    INDEX idx_deleted (is_deleted)
-
-  ) ENGINE=InnoDB;
-`);
-
-     //  Templates Submission
-    
+  /* ROLE PAGE CATEGORIES — stores UI-only category labels per role */
   await pool.execute(`
-  CREATE TABLE IF NOT EXISTS \`template_submissions\` (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-
-    template_id INT NOT NULL,
-    submitted_by INT,
-
-    response_json JSON NOT NULL,
-
+  CREATE TABLE IF NOT EXISTS role_page_categories (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    role_id INT NOT NULL,
+    cat_key VARCHAR(100) NOT NULL,
+    label VARCHAR(255) NOT NULL,
+    display_order INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    INDEX idx_template (template_id),
-
-    CONSTRAINT fk_template_submission
-      FOREIGN KEY (template_id)
-      REFERENCES templates(id)
-      ON DELETE RESTRICT
-
+    FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_role_cat (role_id, cat_key)
   ) ENGINE=InnoDB;
-`);
+  `);
 
-
+  /* Add cat_key column to role_pages_order if it doesn't exist yet */
+  try {
+    await pool.execute(`
+      ALTER TABLE role_pages_order
+      ADD COLUMN cat_key VARCHAR(100) NULL DEFAULT NULL
+    `);
+  } catch (e) {
+    if (e.code !== 'ER_DUP_FIELDNAME') throw e;
+  }
 
   await pool.execute("SET FOREIGN_KEY_CHECKS=1;");
 
