@@ -376,10 +376,21 @@ class PageController {
     try {
       const userId = req.user.id;
       
-      // Get user's pages with role-based hierarchy
       const db = require('../config/db');
-      const query = `
-        SELECT DISTINCT 
+
+      // Fetch categories for this user's roles
+      const catQuery = `
+        SELECT DISTINCT rpc.cat_key, rpc.label, rpc.display_order
+        FROM role_page_categories rpc
+        JOIN user_roles ur ON rpc.role_id = ur.role_id
+        WHERE ur.user_id = ?
+        ORDER BY rpc.display_order ASC
+      `;
+      const categories = await db.executeQuery(catQuery, [userId]);
+
+      // Fetch pages with cat_key (which category they belong to)
+      const pageQuery = `
+        SELECT DISTINCT
           p.id as page_id,
           p.name,
           p.url,
@@ -387,31 +398,71 @@ class PageController {
           p.is_external,
           p.status,
           rpo.parent_page_id,
-          rpo.display_order
+          rpo.display_order,
+          rpo.cat_key
         FROM pages p
         JOIN role_pages_order rpo ON p.id = rpo.page_id
         JOIN user_roles ur ON rpo.role_id = ur.role_id
         WHERE ur.user_id = ? AND p.status = 'active'
         ORDER BY rpo.display_order ASC, p.name ASC
       `;
-      
-      const pages = await db.executeQuery(query, [userId]);
+      const pages = await db.executeQuery(pageQuery, [userId]);
 
-      // Build hierarchy tree
+      // Build page map for nested pages
       const pageMap = {};
+      pages.forEach(p => { pageMap[p.page_id] = { ...p, children: [] }; });
+
+      if (categories.length > 0) {
+        // Build category map
+        const catMap = {};
+        categories.forEach(cat => {
+          catMap[cat.cat_key] = {
+            id: cat.cat_key,
+            name: cat.label,
+            url: null,
+            icon: null,
+            is_category: true,
+            is_external: false,
+            display_order: cat.display_order,
+            children: []
+          };
+        });
+
+        // Place pages into categories or handle nesting
+        const rootPages = [];
+        pages.forEach(p => {
+          if (p.cat_key && catMap[p.cat_key]) {
+            catMap[p.cat_key].children.push(pageMap[p.page_id]);
+          } else if (p.parent_page_id && pageMap[p.parent_page_id]) {
+            pageMap[p.parent_page_id].children.push(pageMap[p.page_id]);
+          } else {
+            rootPages.push(pageMap[p.page_id]);
+          }
+        });
+
+        // Sort children within each category
+        Object.values(catMap).forEach(cat => {
+          cat.children.sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+        });
+
+        // Merge root pages and categories, sort by display_order
+        const catEntries = Object.values(catMap).sort((a, b) => a.display_order - b.display_order);
+        const result = [...rootPages, ...catEntries].sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+
+        return res.status(200).json({
+          success: true,
+          message: 'User pages retrieved successfully',
+          data: { pages: result }
+        });
+      }
+
+      // Fallback: no categories — plain hierarchy
       const rootPages = [];
-      
-      // First pass: create map of all pages
-      pages.forEach(page => {
-        pageMap[page.page_id] = { ...page, children: [] };
-      });
-      
-      // Second pass: build tree structure
-      pages.forEach(page => {
-        if (page.parent_page_id === null) {
-          rootPages.push(pageMap[page.page_id]);
-        } else if (pageMap[page.parent_page_id]) {
-          pageMap[page.parent_page_id].children.push(pageMap[page.page_id]);
+      pages.forEach(p => {
+        if (p.parent_page_id === null) {
+          rootPages.push(pageMap[p.page_id]);
+        } else if (pageMap[p.parent_page_id]) {
+          pageMap[p.parent_page_id].children.push(pageMap[p.page_id]);
         }
       });
 

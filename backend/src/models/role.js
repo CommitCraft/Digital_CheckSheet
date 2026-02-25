@@ -194,42 +194,70 @@ class Role {
 
   // New methods for role-based page hierarchy
   static async assignPagesWithOrder(roleId, pagesWithOrder, assignedBy = null) {
-    // pagesWithOrder is an array of { page_id, parent_page_id, display_order }
-    
-    // Remove existing page assignments from both tables
+    // pagesWithOrder is an array of { page_id, parent_page_id, display_order, is_category?, name }
+
+    // Clear old data
     await db.executeQuery('DELETE FROM role_pages WHERE role_id = ?', [roleId]);
     await db.executeQuery('DELETE FROM role_pages_order WHERE role_id = ?', [roleId]);
-    
-    if (pagesWithOrder && pagesWithOrder.length > 0) {
-      // Insert into role_pages for backward compatibility
-      const rolePageValues = pagesWithOrder.map(() => '(?, ?, ?)').join(', ');
-      const rolePageParams = [];
-      
-      pagesWithOrder.forEach(item => {
-        rolePageParams.push(roleId, item.page_id, assignedBy);
-      });
+    await db.executeQuery('DELETE FROM role_page_categories WHERE role_id = ?', [roleId]);
 
-      const rolePageQuery = `INSERT INTO role_pages (role_id, page_id, assigned_by) VALUES ${rolePageValues}`;
-      await db.executeQuery(rolePageQuery, rolePageParams);
-      
-      // Insert into role_pages_order for hierarchy
-      const orderValues = pagesWithOrder.map(() => '(?, ?, ?, ?)').join(', ');
+    if (pagesWithOrder && pagesWithOrder.length > 0) {
+      // Identify category entries (string page_id starting with 'cat_' or is_category flag)
+      const categoryIds = new Set(
+        pagesWithOrder
+          .filter(p => p.is_category || String(p.page_id).startsWith('cat_'))
+          .map(p => String(p.page_id))
+      );
+
+      // Persist categories to role_page_categories
+      const categories = pagesWithOrder.filter(p => categoryIds.has(String(p.page_id)));
+      for (const cat of categories) {
+        await db.executeQuery(
+          'INSERT INTO role_page_categories (role_id, cat_key, label, display_order) VALUES (?, ?, ?, ?)',
+          [roleId, String(cat.page_id), cat.name || 'Category', cat.display_order || 0]
+        );
+      }
+
+      // Process real pages — remap cat parent to null, store cat_key
+      const realPages = pagesWithOrder
+        .filter(p => !categoryIds.has(String(p.page_id)))
+        .map((p, idx) => {
+          const parentIsCat = p.parent_page_id && categoryIds.has(String(p.parent_page_id));
+          return {
+            page_id: parseInt(p.page_id),
+            parent_page_id: parentIsCat ? null : (p.parent_page_id ? parseInt(p.parent_page_id) : null),
+            cat_key: parentIsCat ? String(p.parent_page_id) : null,
+            display_order: p.display_order ?? idx,
+          };
+        });
+
+      if (realPages.length === 0) return;
+
+      // Insert into role_pages (backward compat)
+      const rolePageValues = realPages.map(() => '(?, ?, ?)').join(', ');
+      const rolePageParams = [];
+      realPages.forEach(item => rolePageParams.push(roleId, item.page_id, assignedBy));
+      await db.executeQuery(
+        `INSERT INTO role_pages (role_id, page_id, assigned_by) VALUES ${rolePageValues}`,
+        rolePageParams
+      );
+
+      // Insert into role_pages_order with cat_key
+      const orderValues = realPages.map(() => '(?, ?, ?, ?, ?)').join(', ');
       const orderParams = [];
-      
-      pagesWithOrder.forEach(item => {
+      realPages.forEach(item => {
         orderParams.push(
-          roleId, 
-          item.page_id, 
-          item.parent_page_id || null, 
-          item.display_order || 0
+          roleId,
+          item.page_id,
+          item.parent_page_id || null,
+          item.display_order || 0,
+          item.cat_key || null
         );
       });
-
-      const orderQuery = `
-        INSERT INTO role_pages_order (role_id, page_id, parent_page_id, display_order) 
-        VALUES ${orderValues}
-      `;
-      await db.executeQuery(orderQuery, orderParams);
+      await db.executeQuery(
+        `INSERT INTO role_pages_order (role_id, page_id, parent_page_id, display_order, cat_key) VALUES ${orderValues}`,
+        orderParams
+      );
     }
   }
 
@@ -285,11 +313,13 @@ class Role {
   }
 
   static async getRolePageOrder(roleId) {
-    const query = `
+    // Fetch real pages with cat_key
+    const pagesQuery = `
       SELECT 
         rpo.page_id,
         rpo.parent_page_id,
         rpo.display_order,
+        COALESCE(rpo.cat_key, NULL) as cat_key,
         p.name,
         p.url,
         p.icon
@@ -298,8 +328,27 @@ class Role {
       WHERE rpo.role_id = ?
       ORDER BY rpo.display_order ASC
     `;
-    
-    return await db.executeQuery(query, [roleId]);
+    const pages = await db.executeQuery(pagesQuery, [roleId]);
+
+    // Fetch categories
+    const catQuery = `
+      SELECT cat_key as page_id, label as name, display_order,
+             1 as is_category, NULL as url, NULL as icon, NULL as parent_page_id
+      FROM role_page_categories
+      WHERE role_id = ?
+      ORDER BY display_order ASC
+    `;
+    const categories = await db.executeQuery(catQuery, [roleId]);
+
+    // Reassemble: each page's parent_page_id is its cat_key (so PageArrangement can nest it)
+    const result = [
+      ...categories,
+      ...pages.map(p => ({
+        ...p,
+        parent_page_id: p.cat_key || p.parent_page_id || null,
+      }))
+    ];
+    return result;
   }
 
   static async getRolePages(roleId) {

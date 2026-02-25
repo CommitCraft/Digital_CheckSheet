@@ -113,24 +113,7 @@ export const endpoints = {
     delete: (id) => `/models/${id}`,
     byBrand: (id) => `/models/by-brand/${id}`,
   },
-
-  // Templates
-  templates: {
-    list: "/templates",
-    create: "/templates",
-    get: (id) => `/templates/${id}`,
-    update: (id) => `/templates/${id}`,
-    softDelete: (id) => `/templates/${id}/soft-delete`,
-    restore: (id) => `/templates/${id}/restore`,
-    hardDelete: (id) => `/templates/${id}/hard-delete`,
-  },
-
-  // Submissions
-  submissions: {
-    create: "/submissions",
-    byTemplate: (templateId) => `/submissions/template/${templateId}`,
-  },
-
+  // Statistics
   stats: {
     dashboard: "/stats/dashboard",
     activity: "/stats/activity",
