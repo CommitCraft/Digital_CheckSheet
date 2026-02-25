@@ -22,6 +22,10 @@ import LinesPage from "./pages/LinesPage";
 import StationsPage from "./pages/StationsPage";
 import BrandsPage from "./pages/BrandsPage";
 import ModelsPage from "./pages/ModelsPage";
+import TemplateBuilder from "./template_builder/TemplateBuilder";
+import TemplatesPage from "./template_builder/TemplatesPage";
+import TemplateForm from "./template_builder/TemplateForm";
+import TemplateSubmissions from "./template_builder/TemplateSubmissions";
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -137,6 +141,52 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+
+               <Route
+                path="/template_builder"
+                element={
+                  <ProtectedRoute>
+                    <TemplateBuilder/>
+                  </ProtectedRoute>
+                }
+              />
+              
+               <Route
+                path="/templates"
+                element={
+                  <ProtectedRoute>
+                   <TemplatesPage/>
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/templates/create"
+                element={
+                  <ProtectedRoute>
+                   <TemplateForm/>
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/templates/edit/:id"
+                element={
+                  <ProtectedRoute>
+                   <TemplateForm/>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+          path="/templates/:id/submissions"
+          element={
+            <ProtectedRoute>
+            
+              <TemplateSubmissions/>
+               
+            </ProtectedRoute>
+          }
+        />
 
               <Route
                 path="/iframe-test"

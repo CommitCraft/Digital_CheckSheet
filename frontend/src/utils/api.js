@@ -126,6 +126,20 @@ models: {
     get: (id) => `/activity-logs/${id}`,
     update: (id) => `/activity-logs/${id}`,
   },
+  // Templates
+  templates: {
+    list: "/api/templates",
+    create: "/api/templates",
+    update: (id) => `/api/templates/${id}`,
+    softDelete: (id) => `/api/templates/${id}/soft-delete`,
+    restore: (id) => `/api/templates/${id}/restore`,
+    hardDelete: (id) => `/api/templates/${id}/hard-delete`,
+  },
+  // Submissions
+  submissions: {
+    create: "/api/submissions",
+    byTemplate: (id) => `/api/submissions/${id}`,
+  },
   // Statistics
   stats: {
     dashboard: '/stats/dashboard',

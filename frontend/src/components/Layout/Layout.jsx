@@ -19,7 +19,9 @@ import {
   LucideChartNoAxesGantt,
   TrainIcon,
   BrainIcon,
-  PartyPopper
+  PartyPopper,
+  BookTemplate,
+  ListChecks
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -86,7 +88,22 @@ const Sidebar = ({ isOpen, onClose }) => {
       path: '/models',
       icon: PartyPopper,
       roles: ['Super Admin', 'Admin']
-    }
+    },
+    {
+  name: 'Templates',
+  path: '/templates',
+  icon: ListChecks,
+  roles: ['Super Admin', 'Admin']
+}
+    //  {
+    //   name: 'Template Builder',
+    //   path: '/template_builder',
+    //   icon: BookTemplate,
+    //   roles: ['Super Admin', 'Admin']
+    // }
+    
+
+    
   ];
 
   const filteredMenuItems = menuItems.filter(item => {

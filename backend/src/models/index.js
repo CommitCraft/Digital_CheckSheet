@@ -9,6 +9,8 @@ const Line = require('./lineModel');
 const Station = require('./stationModel');
 const Brand = require('./brandModel');
 const Model = require('./modelModel');
+const Template = require('./templateModel');
+const TemplateSubmission = require('./templateSubmissionModel');
 
 module.exports = {
   User,
@@ -21,5 +23,7 @@ module.exports = {
   Line,
   Station,
   Brand,
-  Model
+  Model,
+  Template,
+  TemplateSubmission,
 };
