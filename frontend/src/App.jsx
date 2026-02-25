@@ -142,20 +142,20 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-<Route
+              <Route
                 path="/template_builder"
                 element={
                   <ProtectedRoute>
-                    <TemplateBuilder/>
+                    <TemplateBuilder />
                   </ProtectedRoute>
                 }
               />
-              
-               <Route
+
+              <Route
                 path="/templates"
                 element={
                   <ProtectedRoute>
-                   <TemplatesPage/>
+                    <TemplatesPage />
                   </ProtectedRoute>
                 }
               />
@@ -164,7 +164,7 @@ function App() {
                 path="/templates/create"
                 element={
                   <ProtectedRoute>
-                   <TemplateForm/>
+                    <TemplateForm />
                   </ProtectedRoute>
                 }
               />
@@ -173,20 +173,19 @@ function App() {
                 path="/templates/edit/:id"
                 element={
                   <ProtectedRoute>
-                   <TemplateForm/>
+                    <TemplateForm />
                   </ProtectedRoute>
                 }
               />
+
               <Route
-          path="/templates/:id/submissions"
-          element={
-            <ProtectedRoute>
-            
-              <TemplateSubmissions/>
-               
-            </ProtectedRoute>
-          }
-        />
+                path="/templates/:id/submissions"
+                element={
+                  <ProtectedRoute>
+                    <TemplateSubmissions />
+                  </ProtectedRoute>
+                }
+              />
               <Route
                 path="/iframe-test"
                 element={
