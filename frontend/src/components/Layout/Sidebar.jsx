@@ -10,7 +10,7 @@ import {
   Globe,
   ExternalLink,
   ChevronDown,
-  ChevronRight,
+  ListChecks,
   ChevronUp,
   FolderOpen,
   LucideChartNoAxesGantt,
@@ -69,7 +69,13 @@ const menuItems = [
     path: '/models',
     icon: PartyPopper,
     roles: ['Super Admin', 'Admin']
-  }
+  },
+   {
+  name: 'Templates',
+  path: '/templates',
+  icon: ListChecks,
+  roles: ['Super Admin', 'Admin']
+}
 ];
 
 const roleMapping = {
