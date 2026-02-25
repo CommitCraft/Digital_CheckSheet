@@ -6,7 +6,8 @@ import {
   Navigate,
 } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
-import { ThemeProvider } from "./context/ThemeContext";
+import { ThemeProvider } from "./context/ThemeContext"; 
+
 import { AuthProvider, useAuth } from "./context/AuthContext";
 
 // Import pages
