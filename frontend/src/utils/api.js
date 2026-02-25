@@ -128,17 +128,17 @@ models: {
   },
   // Templates
   templates: {
-    list: "/api/templates",
-    create: "/api/templates",
-    update: (id) => `/api/templates/${id}`,
-    softDelete: (id) => `/api/templates/${id}/soft-delete`,
-    restore: (id) => `/api/templates/${id}/restore`,
-    hardDelete: (id) => `/api/templates/${id}/hard-delete`,
+    list: "/templates",
+    create: "/templates",
+    update: (id) => `/templates/${id}`,
+    softDelete: (id) => `/templates/${id}/soft-delete`,
+    restore: (id) => `/templates/${id}/restore`,
+    hardDelete: (id) => `/templates/${id}/hard-delete`,
   },
   // Submissions
   submissions: {
-    create: "/api/submissions",
-    byTemplate: (id) => `/api/submissions/${id}`,
+    create: "/submissions",
+    byTemplate: (id) => `/submissions/${id}`,
   },
   // Statistics
   stats: {
