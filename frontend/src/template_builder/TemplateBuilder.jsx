@@ -216,7 +216,7 @@ export default function TemplateBuilder({ initialSchema, onChange }) {
           </div>
 
           <div className="m-3 p-3 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 text-xs text-gray-600 dark:text-gray-300">
-            Tip: Drop karne ke baad right panel se label/options edit kar sakte ho.
+            Tip: After dropping a field, edit its label and options from the right panel.
           </div>
         </aside>
 
@@ -236,7 +236,7 @@ export default function TemplateBuilder({ initialSchema, onChange }) {
             {items.length === 0 ? (
               <div className="h-56 rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900/20 flex items-center justify-center flex-col gap-2">
                 <div className="text-sm font-extrabold text-gray-900 dark:text-white">Drop fields here</div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">Left se drag karke yahan drop karo</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">Drag from the left panel and drop here</div>
               </div>
             ) : (
               <div className="flex flex-col gap-3">
@@ -320,7 +320,7 @@ export default function TemplateBuilder({ initialSchema, onChange }) {
           <div className="p-3">
             {!selected ? (
               <div className="p-3 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 text-xs text-gray-600 dark:text-gray-300">
-                Canvas se koi field select karo.
+                Select a field from the canvas to edit its properties.
               </div>
             ) : (
               <>
