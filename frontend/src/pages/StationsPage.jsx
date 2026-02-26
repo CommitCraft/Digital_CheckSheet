@@ -23,10 +23,11 @@ const StationModal = ({ open, onClose, station, refresh }) => {
   const [name, setName] = useState("");
   const [status, setStatus] = useState("active");
   const [loading, setLoading] = useState(false);
+  const [nameError, setNameError] = useState("");
 
   useEffect(() => {
     if (!open) return;
-
+    setNameError("");
     if (station) {
       setName(station.name || "");
       setStatus(station.status || "active");
@@ -40,15 +41,10 @@ const StationModal = ({ open, onClose, station, refresh }) => {
     e.preventDefault();
 
     if (!name.trim()) {
-      return toast.error("Station name required", {
-        style: {
-          background: "#1f2937",
-          color: "#f87171",
-          border: "1px solid #4b5563",
-        },
-        iconTheme: { primary: "#f87171", secondary: "#1f2937" },
-      });
+      setNameError("Station name is required");
+      return;
     }
+    setNameError("");
 
     setLoading(true);
 
@@ -82,7 +78,7 @@ const StationModal = ({ open, onClose, station, refresh }) => {
       onClose();
     } catch (err) {
       console.error(err);
-      toast.error("Save failed", {
+      toast.error(err?.response?.data?.message || "Failed to save station", {
         style: {
           background: "#1f2937",
           color: "#f87171",
@@ -113,10 +109,15 @@ const StationModal = ({ open, onClose, station, refresh }) => {
             </label>
             <input
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => { setName(e.target.value); if (nameError) setNameError(""); }}
               placeholder="Enter station name"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white"
+              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white ${
+                nameError ? "border-red-400 dark:border-red-500" : "border-gray-300 dark:border-gray-600"
+              }`}
             />
+            {nameError && (
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{nameError}</p>
+            )}
           </div>
 
           <div>
@@ -193,7 +194,7 @@ const StationsPage = () => {
       }
     } catch (err) {
       console.error(err);
-      toast.error("Load failed", {
+      toast.error(err?.response?.data?.message || "Failed to load stations", {
         style: {
           background: "#1f2937",
           color: "#fca5a5",
@@ -227,7 +228,7 @@ const StationsPage = () => {
       load();
     } catch (err) {
       console.error(err);
-      toast.error("Status change failed", {
+      toast.error(err?.response?.data?.message || "Failed to update status", {
         style: { background: "#1f2937", color: "#f87171", border: "1px solid #4b5563" },
         iconTheme: { primary: "#f87171", secondary: "#1f2937" },
       });
@@ -248,7 +249,7 @@ const StationsPage = () => {
       load();
     } catch (err) {
       console.error(err);
-      toast.error("Delete failed", {
+      toast.error(err?.response?.data?.message || "Failed to delete station", {
         style: { background: "#1f2937", color: "#f87171", border: "1px solid #4b5563" },
         iconTheme: { primary: "#f87171", secondary: "#1f2937" },
       });

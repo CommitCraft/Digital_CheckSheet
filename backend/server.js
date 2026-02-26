@@ -47,15 +47,20 @@ const limiter = rateLimit({
 // =========================
 
 // ✅ CORS MUST BE FIRST
+const allowedOrigins = (process.env.CORS_ORIGIN || `http://${localIP}:8800`)
+  .split(',').map(o => o.trim());
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || `http://${localIP}:8800`,
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+    callback(new Error(`CORS blocked: ${origin}`));
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
 // ✅ Explicit Preflight Support
-app.options('*', cors());
+app.options('*', cors({ origin: (origin, callback) => callback(null, true) }));
 
 // 🛡️ Security Headers
 app.use(helmet({

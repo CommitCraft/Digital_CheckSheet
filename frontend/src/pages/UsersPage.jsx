@@ -71,12 +71,30 @@ const UserModal = ({ isOpen, onClose, user, roles, onSave }) => {
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.username.trim()) newErrors.username = "Username is required";
-    if (!formData.email.trim()) newErrors.email = "Email is required";
-    else if (!isValidEmail(formData.email)) newErrors.email = "Invalid email";
+    if (!formData.username.trim()) {
+      newErrors.username = "Username is required";
+    } else if (formData.username.trim().length < 3) {
+      newErrors.username = "Username must be at least 3 characters";
+    } else if (formData.username.trim().length > 50) {
+      newErrors.username = "Username must be 50 characters or fewer";
+    } else if (/\s/.test(formData.username)) {
+      newErrors.username = "Username cannot contain spaces";
+    }
 
-    if (!user && !formData.password) {
-      newErrors.password = "Password is required for new users";
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!isValidEmail(formData.email)) {
+      newErrors.email = "Please enter a valid email address";
+    }
+
+    if (!user) {
+      if (!formData.password) {
+        newErrors.password = "Password is required for new users";
+      } else if (formData.password.length < 8) {
+        newErrors.password = "Password must be at least 8 characters";
+      }
+    } else if (formData.password && formData.password.length < 8) {
+      newErrors.password = "New password must be at least 8 characters";
     }
 
     if (!formData.role_id) newErrors.role_id = "Role is required";
@@ -120,7 +138,11 @@ const UserModal = ({ isOpen, onClose, user, roles, onSave }) => {
       onClose();
     } catch (err) {
       console.error(err);
-      const msg = err?.response?.data?.message || "Failed to save user";
+      const data = err?.response?.data;
+      const msg =
+        (Array.isArray(data?.errors) ? data.errors.map((e) => e.message || e.msg || e).join(", ") : null) ||
+        data?.message ||
+        "Failed to save user";
       toast.error(msg);
     } finally {
       setLoading(false);
@@ -361,6 +383,7 @@ const UsersPage = () => {
       setRoles(res?.data?.data?.roles ?? []);
     } catch (err) {
       console.error("Error fetching roles:", err);
+      toast.error("Failed to load roles. Please refresh the page.");
       setRoles([]);
     }
   }, []);
@@ -639,13 +662,13 @@ const UsersPage = () => {
                         {/* Actions */}
                         <td className="px-6 py-4 whitespace-nowrap text-right">
                           <div className="flex items-center justify-end gap-2">
-                            <button
+                            {/* <button
                               onClick={() => handleViewUserPages(u)}
                               className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 dark:text-blue-400 rounded-lg transition-colors"
                               title="View assigned pages"
                             >
                               <Monitor className="h-4 w-4" />
-                            </button>
+                            </button> */}
 
                             <button
                               onClick={() => handleEditUser(u)}
