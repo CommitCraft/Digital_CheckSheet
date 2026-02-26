@@ -1,15 +1,15 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import {
   Plus,
   Edit,
   Trash2,
   Search,
-  CheckCircle,
-  XCircle,
   ChevronLeft,
   ChevronRight,
   Settings,
-  RefreshCcw
+  RefreshCcw,
+  CheckCircle,
+  XCircle,
 } from "lucide-react";
 
 import Layout from "../components/Layout/Layout";
@@ -17,130 +17,105 @@ import { apiService, endpoints } from "../utils/api";
 import LoadingSpinner from "../components/LoadingSpinner";
 import toast from "react-hot-toast";
 
-
 /* ===============================
-   MODAL
+   MODAL (Themed)
 ================================*/
 
 const LineModal = ({ open, onClose, line, refresh }) => {
-
   const [name, setName] = useState("");
   const [status, setStatus] = useState("active");
   const [loading, setLoading] = useState(false);
 
-
   useEffect(() => {
+    if (!open) return;
 
     if (line) {
-      setName(line.name);
-      setStatus(line.status);
+      setName(line.name || "");
+      setStatus(line.status || "active");
     } else {
       setName("");
       setStatus("active");
     }
-
   }, [line, open]);
 
-
   const submit = async (e) => {
-
     e.preventDefault();
 
-    if (!name.trim()) {
-      return toast.error("Line name required");
-    }
+    if (!name.trim()) return toast.error("Line name required");
 
     setLoading(true);
 
     try {
-
       if (line) {
-
-        await apiService.put(
-          endpoints.lines.update(line.id),
-          { name, status }
-        );
-
-        toast.success("Line updated");
-
+        await apiService.put(endpoints.lines.update(line.id), { name, status });
+        toast.success("Line updated successfully");
       } else {
-
-        await apiService.post(
-          endpoints.lines.create,
-          { name, status }
-        );
-
-        toast.success("Line created");
+        await apiService.post(endpoints.lines.create, { name, status });
+        toast.success("Line created successfully");
       }
 
       refresh();
       onClose();
-
     } catch {
-
       toast.error("Save failed");
-
     } finally {
       setLoading(false);
     }
   };
 
-
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-md mx-4">
-        {/* Modal header */}
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+        <div className="px-6 py-4 border-b bg-gray-50 dark:bg-gray-900/40">
+          <h2 className="text-lg font-semibold">
             {line ? "Edit Line" : "Add Line"}
           </h2>
         </div>
 
         <form onSubmit={submit} className="p-6 space-y-4">
-          {/* Name */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className="block text-sm font-medium mb-1">
               Line Name
             </label>
             <input
               value={name}
-              onChange={e => setName(e.target.value)}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full px-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700"
               placeholder="Enter line name"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white"
             />
           </div>
 
-          {/* Status */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className="block text-sm font-medium mb-1">
               Status
             </label>
             <select
               value={status}
-              onChange={e => setStatus(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white"
+              onChange={(e) => setStatus(e.target.value)}
+              className="w-full px-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700"
             >
               <option value="active">Active</option>
               <option value="inactive">Inactive</option>
             </select>
           </div>
 
-          {/* Buttons */}
           <div className="flex justify-end gap-3 pt-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+              className="px-4 py-2 rounded-lg border hover:bg-gray-100 dark:hover:bg-gray-700"
             >
               Cancel
             </button>
+
             <button
               disabled={loading}
-              className="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-4 py-2 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-lg shadow-md hover:shadow-lg disabled:opacity-50 flex items-center"
             >
-              {loading ? "Saving..." : "Save"}
+              {loading && <LoadingSpinner size="sm" className="mr-2" />}
+              Save
             </button>
           </div>
         </form>
@@ -149,295 +124,276 @@ const LineModal = ({ open, onClose, line, refresh }) => {
   );
 };
 
-
-
 /* ===============================
-   MAIN PAGE
+   MAIN PAGE (Themed)
 ================================*/
 
 const LinesPage = () => {
-
   const [lines, setLines] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const [search, setSearch] = useState("");
-
   const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState(null);
 
   const perPage = 10;
 
-
-  /* ===============================
-     LOAD
-  ================================*/
-
   const load = useCallback(async () => {
-
     try {
-
       setLoading(true);
 
-      const res = await apiService.get(
-        endpoints.lines.list,
-        {
-          params: { search, page, limit: perPage }
-        }
-      );
+      const res = await apiService.get(endpoints.lines.list, {
+        params: { search, page, limit: perPage },
+      });
 
-      const data = res.data.data || res.data;
+      const payload = res?.data?.data ?? res?.data ?? {};
+      const rows = payload.lines ?? payload ?? [];
 
-      setLines(data.lines || data || []);
+      setLines(Array.isArray(rows) ? rows : []);
 
-      if (data.pagination) {
-        setTotal(Math.ceil(data.pagination.total / perPage));
+      if (payload.pagination?.total != null) {
+        setTotalPages(Math.ceil(payload.pagination.total / perPage));
+      } else {
+        setTotalPages(1);
       }
-
     } catch {
-
       toast.error("Load failed");
       setLines([]);
-
     } finally {
       setLoading(false);
     }
-
   }, [search, page]);
-
 
   useEffect(() => {
     load();
   }, [load]);
 
-
-  /* ===============================
-     ACTIONS
-  ================================*/
-
   const toggleStatus = async (line) => {
-
     const newStatus =
-      line.status === "active"
-        ? "inactive"
-        : "active";
+      line.status === "active" ? "inactive" : "active";
 
     try {
-
-      await apiService.post(
-        endpoints.lines.status(line.id),
-        { status: newStatus }
-      );
-
+      await apiService.post(endpoints.lines.status(line.id), {
+        status: newStatus,
+      });
       toast.success("Status updated");
       load();
-
     } catch {
-
       toast.error("Status change failed");
     }
   };
 
-
   const deleteLine = async (id) => {
-
     if (!window.confirm("Delete permanently?")) return;
 
     try {
-
-      await apiService.delete(
-        endpoints.lines.delete(id)
-      );
-
+      await apiService.delete(endpoints.lines.delete(id));
       toast.success("Deleted");
       load();
-
     } catch {
-
       toast.error("Delete failed");
     }
   };
 
+  const stats = useMemo(() => {
+    const total = lines.length;
+    const active = lines.filter((l) => l.status === "active").length;
+    return { total, active, inactive: total - active };
+  }, [lines]);
 
-  /* ===============================
-     UI
-  ================================*/
-
-  const badge = (s) => (
-    <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-        s === 'active'
-          ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-          : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
-      }`}
-    >
-      {s.charAt(0).toUpperCase() + s.slice(1)}
-    </span>
-  );
-
+  const badge = (s) => {
+    const active = s === "active";
+    return (
+      <span
+        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+          active
+            ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+            : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
+        }`}
+      >
+        {active ? <CheckCircle className="h-3 w-3 mr-1" /> : <XCircle className="h-3 w-3 mr-1" />}
+        {active ? "Active" : "Inactive"}
+      </span>
+    );
+  };
 
   return (
     <Layout>
-
       <div className="space-y-6">
-
 
         {/* Header */}
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-              <Settings className="h-7 w-7 text-primary-600" />
-              Lines
+            <h1 className="text-3xl font-bold flex items-center gap-3">
+              <Settings className="h-8 w-8 text-primary-600" />
+              Production Lines
             </h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Manage production lines</p>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
+              Manage production lines
+            </p>
           </div>
 
           <button
-            onClick={() => { setSelected(null); setOpen(true); }}
-            className="flex items-center gap-2 px-4 py-2.5 bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold rounded-xl shadow-sm hover:shadow-md transition-all duration-200"
+            onClick={() => {
+              setSelected(null);
+              setOpen(true);
+            }}
+            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-lg shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all"
           >
-            <Plus size={16} />
+            <Plus className="h-5 w-5" />
             Add Line
           </button>
         </div>
 
+        {/* Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <StatCard title="Total Lines" value={stats.total} color="primary" />
+          <StatCard title="Active" value={stats.active} color="green" />
+          <StatCard title="Inactive" value={stats.inactive} color="red" />
+        </div>
 
         {/* Search */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border p-4">
           <div className="relative">
-            <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               value={search}
-              onChange={e => { setSearch(e.target.value); setPage(1); }}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
               placeholder="Search lines..."
-              className="pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white text-sm"
+              className="w-full pl-10 pr-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700"
             />
           </div>
         </div>
 
-
         {/* Table */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border overflow-hidden">
           {loading ? (
-
-            <div className="py-12 flex justify-center">
+            <div className="py-14 flex justify-center">
               <LoadingSpinner size="lg" />
             </div>
-
+          ) : lines.length === 0 ? (
+            <div className="text-center py-14">
+              <Settings className="h-10 w-10 mx-auto text-gray-400 mb-3" />
+              <p className="text-gray-500">No lines found</p>
+            </div>
           ) : (
-
             <>
               <table className="w-full">
-
-                <thead className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
+                <thead className="bg-gray-50 dark:bg-gray-900/40 border-b">
                   <tr>
-                    <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-16">#</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Name</th>
-                    <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
-                    <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase">
+                      Line
+                    </th>
+                    <th className="px-6 py-3 text-center text-xs font-semibold uppercase">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-right text-xs font-semibold uppercase">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
 
                 <tbody>
+                  {lines.map((l) => (
+                    <tr key={l.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/40 transition">
+                      <td className="px-6 py-4">
+                        <p className="font-semibold">{l.name}</p>
+                        <p className="text-xs text-gray-500">ID: {l.id}</p>
+                      </td>
 
-                  {lines.length === 0 ? (
-                    <tr>
-                      <td colSpan="4" className="px-4 py-12 text-center text-gray-500 dark:text-gray-400">
-                        <div className="flex flex-col items-center gap-2">
-                          <Settings className="h-8 w-8 text-gray-300 dark:text-gray-600" />
-                          <p className="text-sm font-medium">No lines found</p>
+                      <td className="px-6 py-4 text-center">
+                        {badge(l.status)}
+                      </td>
+
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex justify-end gap-2">
+                          <button
+                            onClick={() => toggleStatus(l)}
+                            className="p-2 text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-lg"
+                          >
+                            <RefreshCcw className="h-4 w-4" />
+                          </button>
+
+                          <button
+                            onClick={() => {
+                              setSelected(l);
+                              setOpen(true);
+                            }}
+                            className="p-2 text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </button>
+
+                          <button
+                            onClick={() => deleteLine(l.id)}
+                            className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
                         </div>
                       </td>
                     </tr>
-                  ) : (
-                    lines.map(l => (
-                      <tr
-                        key={l.id}
-                        className="border-t border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-                      >
-                        <td className="px-4 py-3 text-center text-sm text-gray-500 dark:text-gray-400 font-mono">{l.id}</td>
-                        <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-white">{l.name}</td>
-                        <td className="px-4 py-3 text-center">{badge(l.status)}</td>
-                        <td className="px-4 py-3 text-right">
-                          <div className="flex items-center justify-end gap-1">
-                            <button
-                              onClick={() => toggleStatus(l)}
-                              title="Toggle Status"
-                              className="p-1.5 text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-lg transition-colors"
-                            >
-                              <RefreshCcw size={15} />
-                            </button>
-                            <button
-                              onClick={() => { setSelected(l); setOpen(true); }}
-                              title="Edit"
-                              className="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
-                            >
-                              <Edit size={15} />
-                            </button>
-                            <button
-                              onClick={() => deleteLine(l.id)}
-                              title="Delete"
-                              className="p-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                            >
-                              <Trash2 size={15} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-
+                  ))}
                 </tbody>
-
               </table>
 
-
-              {/* Pagination */}
-              {total > 1 && (
-                <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-gray-700">
+              {totalPages > 1 && (
+                <div className="flex justify-between items-center px-6 py-4 border-t bg-gray-50 dark:bg-gray-900/40">
                   <span className="text-sm text-gray-600 dark:text-gray-400">
-                    Page <span className="font-semibold text-gray-900 dark:text-white">{page}</span> of{' '}
-                    <span className="font-semibold text-gray-900 dark:text-white">{total}</span>
+                    Page {page} of {totalPages}
                   </span>
-                  <div className="flex items-center gap-1">
+                  <div className="flex gap-2">
                     <button
                       disabled={page === 1}
-                      onClick={() => setPage(p => p - 1)}
-                      className="p-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                      onClick={() => setPage((p) => p - 1)}
+                      className="p-2 border rounded-lg"
                     >
-                      <ChevronLeft size={16} />
+                      <ChevronLeft size={18} />
                     </button>
                     <button
-                      disabled={page === total}
-                      onClick={() => setPage(p => p + 1)}
-                      className="p-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                      disabled={page === totalPages}
+                      onClick={() => setPage((p) => p + 1)}
+                      className="p-2 border rounded-lg"
                     >
-                      <ChevronRight size={16} />
+                      <ChevronRight size={18} />
                     </button>
                   </div>
                 </div>
               )}
-
             </>
           )}
-
         </div>
 
-
-        {/* Modal */}
-        <LineModal
-          open={open}
-          onClose={() => setOpen(false)}
-          line={selected}
-          refresh={load}
-        />
-
+        <LineModal open={open} onClose={() => setOpen(false)} line={selected} refresh={load} />
       </div>
-
     </Layout>
+  );
+};
+
+/* ===============================
+   STAT CARD COMPONENT
+================================*/
+
+const StatCard = ({ title, value, color }) => {
+  const colorMap = {
+    primary: "bg-primary-50 dark:bg-primary-900/20 text-primary-700",
+    green: "bg-green-50 dark:bg-green-900/20 text-green-700",
+    red: "bg-red-50 dark:bg-red-900/20 text-red-700",
+  };
+
+  return (
+    <div className={`p-5 rounded-xl shadow-sm border ${colorMap[color]}`}>
+      <p className="text-xs uppercase font-semibold text-gray-500">
+        {title}
+      </p>
+      <h2 className="text-2xl font-bold mt-1">{value}</h2>
+    </div>
   );
 };
 
