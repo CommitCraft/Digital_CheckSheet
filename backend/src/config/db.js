@@ -284,7 +284,55 @@ const createTables = async () => {
   UNIQUE KEY unique_model_per_brand (brand_id, name)
 ) ENGINE=InnoDB;
     `);
+//  Templates table
+   await pool.execute(`
+  CREATE TABLE IF NOT EXISTS \`templates\` (
+    id INT AUTO_INCREMENT PRIMARY KEY,
 
+    name VARCHAR(150) NOT NULL,
+
+    entity_type ENUM('line','station','model') NOT NULL,
+    entity_id INT NOT NULL,
+
+    version INT DEFAULT 1,
+
+    schema_json JSON NOT NULL,
+
+    is_deleted BOOLEAN DEFAULT FALSE,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      ON UPDATE CURRENT_TIMESTAMP,
+
+    INDEX idx_entity (entity_type, entity_id),
+    INDEX idx_deleted (is_deleted)
+
+  ) ENGINE=InnoDB;
+`);
+
+     //  Templates Submission
+    
+  await pool.execute(`
+  CREATE TABLE IF NOT EXISTS \`template_submissions\` (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+
+    template_id INT NOT NULL,
+    submitted_by INT,
+
+    response_json JSON NOT NULL,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    INDEX idx_template (template_id),
+
+    CONSTRAINT fk_template_submission
+      FOREIGN KEY (template_id)
+      REFERENCES templates(id)
+      ON DELETE RESTRICT
+
+  ) ENGINE=InnoDB;
+`);
   /* ROLE PAGE CATEGORIES — stores UI-only category labels per role */
   await pool.execute(`
   CREATE TABLE IF NOT EXISTS role_page_categories (
