@@ -169,16 +169,16 @@ const Sidebar = ({ isOpen, onClose }) => {
         {/* Logo */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex flex-col items-center w-full">
-            <div className="bg-primary-500 rounded-lg flex items-center justify-center">
+            <div className=" rounded-lg flex items-center justify-center">
               <img
-                src="https://www.digitalcheck.com/wp-content/uploads/2012/02/1_Digital_Check_Logo.jpg"
+                src="https://www.easyofficesoftware.com/public/assets_front/imgs/logo_audit_new.png"
                 alt="Digital Logo"
                 className="object-contain"
               />
             </div>
-            <span className="mt-2 text-xl font-bold text-gray-900 dark:text-white">
+            {/* <span className="mt-2 text-xl font-bold text-gray-900 dark:text-white">
               Digital Checksheet
-            </span>
+            </span> */}
           </div>
           <button
             onClick={onClose}

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { useRef } from "react";
 import {
   Shield,
   Plus,
@@ -19,6 +20,7 @@ import LoadingSpinner from "../components/LoadingSpinner";
 import PageArrangement from "../components/PageArrangement";
 import toast from "react-hot-toast";
 
+
 const RoleModal = ({ isOpen, onClose, role, pages, onSave }) => {
   const [formData, setFormData] = useState({
     name: "",
@@ -29,6 +31,7 @@ const RoleModal = ({ isOpen, onClose, role, pages, onSave }) => {
   const [loading, setLoading] = useState(false);
   const [loadingOrder, setLoadingOrder] = useState(false);
   const [errors, setErrors] = useState({});
+
 
   useEffect(() => {
     const loadRolePageOrder = async () => {
@@ -280,38 +283,40 @@ const RolesPage = () => {
   const [selectedRole, setSelectedRole] = useState(null);
 
   const fetchRoles = useCallback(async () => {
-    try {
-      setLoading(true);
+  try {
+    setLoading(true);
 
-      // Add cache-busting parameter to ensure fresh data
-      const response = await apiService.get(endpoints.roles.list, {
-        params: { _t: Date.now() },
-        headers: { "Cache-Control": "no-cache, no-store, must-revalidate" },
-      });
+    const response = await apiService.get(endpoints.roles.list, {
+      params: { _t: Date.now() }, // cache bust only
+    });
 
-      // The backend returns: { success, message, data: { roles: [...], pagination: {...} } }
-      const newRoles = response.data.data?.roles || [];
+    const rolesData = response?.data?.data?.roles || [];
 
-      setRoles(newRoles);
-    } catch (error) {
-      console.error("Error fetching roles:", error);
-      toast.error("Failed to fetch roles", {
-        style: {
-          background: "#1f2937", // dark gray
-          color: "#fca5a5", // soft red text for contrast
-          border: "1px solid #4b5563",
-          borderRadius: "8px",
-        },
-        iconTheme: {
-          primary: "#ef4444", // bright red icon
-          secondary: "#1f2937", // matches dark bg
-        },
-      });
-      setRoles([]); // Ensure roles is always an array
-    } finally {
-      setLoading(false);
+    console.log("Roles fetched:", rolesData);
+
+    if (Array.isArray(rolesData)) {
+      setRoles(rolesData);
     }
-  }, []);
+  } catch (error) {
+    console.error("Error fetching roles:", error);
+    toast.error("Failed to fetch roles", {
+      style: {
+        background: "#1f2937",
+        color: "#fca5a5",
+        border: "1px solid #4b5563",
+        borderRadius: "8px",
+      },
+      iconTheme: {
+        primary: "#ef4444",
+        secondary: "#1f2937",
+      },
+    });
+
+    // ❌ DO NOT reset roles here
+  } finally {
+    setLoading(false);
+  }
+}, []);
 
   const fetchPages = useCallback(async () => {
     try {
@@ -340,10 +345,14 @@ const RolesPage = () => {
     }
   }, []);
 
+  const hasFetched = useRef(false);
   useEffect(() => {
-    fetchRoles();
-    fetchPages();
-  }, [fetchRoles, fetchPages]);
+  if (hasFetched.current) return;
+  hasFetched.current = true;
+
+  fetchRoles();
+  fetchPages();
+}, [fetchRoles, fetchPages]);
 
   const handleDeleteRole = async (roleId) => {
     if (
@@ -385,14 +394,17 @@ const RolesPage = () => {
   };
 
   const filteredRoles = useMemo(() => {
-    return Array.isArray(roles)
-      ? roles.filter(
-          (role) =>
-            role.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            role.description?.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-      : [];
-  }, [roles, searchTerm]);
+  if (!Array.isArray(roles)) return [];
+
+  const term = searchTerm.trim().toLowerCase();
+  if (!term) return roles;
+
+  return roles.filter(
+    (role) =>
+      role.name?.toLowerCase().includes(term) ||
+      role.description?.toLowerCase().includes(term)
+  );
+}, [roles, searchTerm]);
 
   const getAssignedPagesDisplay = (pageIds, rolePages) => {
     // Try rolePages first (page names array)
