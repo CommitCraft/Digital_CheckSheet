@@ -23,9 +23,11 @@ const ModelModal = ({ open, onClose, model, brands, refresh }) => {
   const [brandId, setBrandId] = useState("");
   const [status, setStatus] = useState("active");
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     if (!open) return;
+    setErrors({});
     if (model) {
       setName(model.name || "");
       setBrandId(String(model.brand_id ?? ""));
@@ -39,7 +41,14 @@ const ModelModal = ({ open, onClose, model, brands, refresh }) => {
 
   const submit = async (e) => {
     e.preventDefault();
-    if (!name.trim() || !brandId) return toast.error("Brand & Model required");
+    const newErrors = {};
+    if (!brandId) newErrors.brandId = "Please select a brand";
+    if (!name.trim()) newErrors.name = "Model name is required";
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+    setErrors({});
 
     setLoading(true);
     try {
@@ -77,7 +86,7 @@ const ModelModal = ({ open, onClose, model, brands, refresh }) => {
       onClose();
     } catch (e2) {
       console.error(e2);
-      toast.error("Save failed", {
+      toast.error(e2?.response?.data?.message || "Failed to save model", {
         style: {
           background: "#1f2937",
           color: "#f87171",
@@ -108,8 +117,10 @@ const ModelModal = ({ open, onClose, model, brands, refresh }) => {
             </label>
             <select
               value={brandId}
-              onChange={(e) => setBrandId(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white"
+              onChange={(e) => { setBrandId(e.target.value); if (errors.brandId) setErrors(p => ({ ...p, brandId: "" })); }}
+              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white ${
+                errors.brandId ? "border-red-400 dark:border-red-500" : "border-gray-300 dark:border-gray-600"
+              }`}
             >
               <option value="">Select Brand</option>
               {(brands || []).map((b) => (
@@ -118,6 +129,9 @@ const ModelModal = ({ open, onClose, model, brands, refresh }) => {
                 </option>
               ))}
             </select>
+            {errors.brandId && (
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.brandId}</p>
+            )}
           </div>
 
           <div>
@@ -126,10 +140,15 @@ const ModelModal = ({ open, onClose, model, brands, refresh }) => {
             </label>
             <input
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => { setName(e.target.value); if (errors.name) setErrors(p => ({ ...p, name: "" })); }}
               placeholder="Enter model name"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white"
+              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white ${
+                errors.name ? "border-red-400 dark:border-red-500" : "border-gray-300 dark:border-gray-600"
+              }`}
             />
+            {errors.name && (
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.name}</p>
+            )}
           </div>
 
           <div>
@@ -211,7 +230,7 @@ const ModelsPage = () => {
       }
     } catch (e) {
       console.error(e);
-      toast.error("Load failed", {
+      toast.error(e?.response?.data?.message || "Failed to load models", {
         style: {
           background: "#1f2937",
           color: "#fca5a5",
@@ -242,7 +261,7 @@ const ModelsPage = () => {
       load();
     } catch (e) {
       console.error(e);
-      toast.error("Delete failed", {
+      toast.error(e?.response?.data?.message || "Failed to delete model", {
         style: { background: "#1f2937", color: "#f87171", border: "1px solid #4b5563" },
         iconTheme: { primary: "#f87171", secondary: "#1f2937" },
       });

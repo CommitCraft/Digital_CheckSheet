@@ -341,6 +341,7 @@ const RolesPage = () => {
       setPages(filteredPages);
     } catch (error) {
       console.error("Error fetching pages:", error);
+      toast.error("Failed to load pages. Page permissions may be unavailable.");
       setPages([]); // Ensure pages is always an array
     }
   }, []);

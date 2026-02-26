@@ -22,10 +22,11 @@ const BrandModal = ({ open, onClose, brand, refresh }) => {
   const [name, setName] = useState("");
   const [status, setStatus] = useState("active");
   const [loading, setLoading] = useState(false);
+  const [nameError, setNameError] = useState("");
 
   useEffect(() => {
     if (!open) return;
-
+    setNameError("");
     if (brand) {
       setName(brand.name || "");
       setStatus(brand.status || "active");
@@ -38,15 +39,10 @@ const BrandModal = ({ open, onClose, brand, refresh }) => {
   const submit = async (e) => {
     e.preventDefault();
     if (!name.trim()) {
-      return toast.error("Brand name required", {
-        style: {
-          background: "#1f2937",
-          color: "#f87171",
-          border: "1px solid #4b5563",
-        },
-        iconTheme: { primary: "#f87171", secondary: "#1f2937" },
-      });
+      setNameError("Brand name is required");
+      return;
     }
+    setNameError("");
 
     setLoading(true);
     try {
@@ -76,7 +72,7 @@ const BrandModal = ({ open, onClose, brand, refresh }) => {
       onClose();
     } catch (e2) {
       console.error(e2);
-      toast.error("Save failed", {
+      toast.error(e2?.response?.data?.message || "Failed to save brand", {
         style: {
           background: "#1f2937",
           color: "#f87171",
@@ -107,10 +103,15 @@ const BrandModal = ({ open, onClose, brand, refresh }) => {
             </label>
             <input
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => { setName(e.target.value); if (nameError) setNameError(""); }}
               placeholder="Enter brand name"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white"
+              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white ${
+                nameError ? "border-red-400 dark:border-red-500" : "border-gray-300 dark:border-gray-600"
+              }`}
             />
+            {nameError && (
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{nameError}</p>
+            )}
           </div>
 
           <div>
@@ -187,7 +188,7 @@ const BrandsPage = () => {
       }
     } catch (e) {
       console.error(e);
-      toast.error("Load failed", {
+      toast.error(e?.response?.data?.message || "Failed to load brands", {
         style: {
           background: "#1f2937",
           color: "#fca5a5",
@@ -218,7 +219,7 @@ const BrandsPage = () => {
       load();
     } catch (e) {
       console.error(e);
-      toast.error("Delete failed", {
+      toast.error(e?.response?.data?.message || "Failed to delete brand", {
         style: { background: "#1f2937", color: "#f87171", border: "1px solid #4b5563" },
         iconTheme: { primary: "#f87171", secondary: "#1f2937" },
       });

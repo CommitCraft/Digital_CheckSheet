@@ -25,10 +25,11 @@ const LineModal = ({ open, onClose, line, refresh }) => {
   const [name, setName] = useState("");
   const [status, setStatus] = useState("active");
   const [loading, setLoading] = useState(false);
+  const [nameError, setNameError] = useState("");
 
   useEffect(() => {
     if (!open) return;
-
+    setNameError("");
     if (line) {
       setName(line.name || "");
       setStatus(line.status || "active");
@@ -41,7 +42,11 @@ const LineModal = ({ open, onClose, line, refresh }) => {
   const submit = async (e) => {
     e.preventDefault();
 
-    if (!name.trim()) return toast.error("Line name required");
+    if (!name.trim()) {
+      setNameError("Line name is required");
+      return;
+    }
+    setNameError("");
 
     setLoading(true);
 
@@ -56,8 +61,8 @@ const LineModal = ({ open, onClose, line, refresh }) => {
 
       refresh();
       onClose();
-    } catch {
-      toast.error("Save failed");
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "Failed to save line");
     } finally {
       setLoading(false);
     }
@@ -81,10 +86,15 @@ const LineModal = ({ open, onClose, line, refresh }) => {
             </label>
             <input
               value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full px-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700"
+              onChange={(e) => { setName(e.target.value); if (nameError) setNameError(""); }}
+              className={`w-full px-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 ${
+                nameError ? "border-red-400 dark:border-red-500" : "border-gray-300 dark:border-gray-600"
+              }`}
               placeholder="Enter line name"
             />
+            {nameError && (
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{nameError}</p>
+            )}
           </div>
 
           <div>
@@ -159,8 +169,8 @@ const LinesPage = () => {
       } else {
         setTotalPages(1);
       }
-    } catch {
-      toast.error("Load failed");
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "Failed to load lines");
       setLines([]);
     } finally {
       setLoading(false);
@@ -181,8 +191,8 @@ const LinesPage = () => {
       });
       toast.success("Status updated");
       load();
-    } catch {
-      toast.error("Status change failed");
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "Failed to update status");
     }
   };
 
@@ -193,8 +203,8 @@ const LinesPage = () => {
       await apiService.delete(endpoints.lines.delete(id));
       toast.success("Deleted");
       load();
-    } catch {
-      toast.error("Delete failed");
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "Failed to delete line");
     }
   };
 
