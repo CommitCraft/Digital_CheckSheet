@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import Layout from "../components/Layout/Layout";
 import { apiService, endpoints } from "../utils/api";
 import { useParams } from "react-router-dom";
@@ -6,30 +6,42 @@ import { Database } from "lucide-react";
 import LoadingSpinner from "../components/LoadingSpinner";
 import toast from "react-hot-toast";
 
+function parseResponseJson(val) {
+  if (!val) return null;
+  if (typeof val === "object") return val;
+  try {
+    return JSON.parse(val);
+  } catch {
+    return val;
+  }
+}
+
 export default function TemplateSubmissions() {
 
   const { id } = useParams(); // template_id
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     try {
       setLoading(true);
       const res = await apiService.get(
         endpoints.submissions.byTemplate(id)
       );
-      setData(res.data);
+      // API returns a direct array
+      const arr = Array.isArray(res.data) ? res.data : (res.data?.data ?? res.data ?? []);
+      setData(Array.isArray(arr) ? arr : []);
     } catch (err) {
       toast.error("Failed to load submissions");
       setData([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
 
   useEffect(() => {
     load();
-  }, [id]);
+  }, [load]);
 
   return (
     <Layout>
@@ -84,7 +96,7 @@ export default function TemplateSubmissions() {
                       <td className="p-3">
                         <pre className="text-xs bg-gray-100 dark:bg-gray-900 p-2 rounded overflow-auto max-h-40">
                           {JSON.stringify(
-                            JSON.parse(s.response_json),
+                            parseResponseJson(s.response_json),
                             null,
                             2
                           )}

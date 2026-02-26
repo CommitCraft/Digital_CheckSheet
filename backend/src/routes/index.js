@@ -13,6 +13,8 @@ const lineRoutes = require("./lineRoutes"); // ✅ ADD THIS
 const stationRoutes = require('./stationRoutes');
 const brandRoutes = require('./brandRoutes');
 const modelRoutes = require('./modelRoutes');
+const templateRoutes = require('./templateRoutes');
+const templateSubmissionRoutes = require('./templateSubmissionRoutes');
 
 // API version and documentation info
 router.get("/", (req, res) => {
@@ -63,6 +65,8 @@ router.use("/lines", lineRoutes); // ✅ ADD THIS
 router.use("/stations", stationRoutes); // ✅ ADD THIS
 router.use("/brands", brandRoutes); // ✅ ADD THIS
 router.use("/models", modelRoutes); // ✅ ADD THIS
+router.use("/templates", templateRoutes);
+router.use("/submissions", templateSubmissionRoutes);
 
 // API documentation placeholder
 router.get("/docs", (req, res) => {

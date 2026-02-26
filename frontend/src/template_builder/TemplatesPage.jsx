@@ -36,6 +36,18 @@ export default function TemplatesPage() {
     load();
   }, [load]);
 
+  const handleDelete = async (t) => {
+    if (!window.confirm(`Delete template "${t.name}"?`)) return;
+    try {
+      await apiService.delete(endpoints.templates.softDelete(t.id));
+      toast.success("Template deleted");
+      load();
+    } catch (e) {
+      console.error(e);
+      toast.error("Failed to delete template");
+    }
+  };
+
   return (
     <Layout>
       <div className="space-y-6">
@@ -82,6 +94,12 @@ export default function TemplatesPage() {
                         className="px-3 py-1 rounded border dark:border-gray-700"
                       >
                         Submissions
+                      </button>
+                      <button
+                        onClick={() => handleDelete(t)}
+                        className="px-3 py-1 rounded border border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
+                      >
+                        Delete
                       </button>
                     </td>
                   </tr>

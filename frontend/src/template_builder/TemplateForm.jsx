@@ -207,7 +207,7 @@ export default function TemplateForm() {
                 <option value="model">Model</option>
               </select>
               <div className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                {isEdit ? "Entity type edit mode me change nahi hoga" : `API: ${entityEndpoint}`}
+                {isEdit ? "Entity type cannot be changed in edit mode" : `API: ${entityEndpoint}`}
               </div>
             </div>
 
