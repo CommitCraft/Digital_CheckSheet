@@ -16,7 +16,8 @@ import {
   LucideChartNoAxesGantt,
   TrainIcon,
   BrainIcon,
-  PartyPopper
+  PartyPopper,
+  Timer
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { apiService } from '../../utils/api';
@@ -69,6 +70,12 @@ const menuItems = [
     path: '/models',
     icon: PartyPopper,
     roles: ['Super Admin', 'Admin']
+  },
+  {
+    name:'Inspection Slot',
+    path:'/inspection-slots',
+    icon:Timer,
+    roles:['Super Admin', 'Admin']
   },
    {
   name: 'Templates',

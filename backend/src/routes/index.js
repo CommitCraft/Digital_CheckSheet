@@ -13,6 +13,7 @@ const lineRoutes = require("./lineRoutes"); // ✅ ADD THIS
 const stationRoutes = require('./stationRoutes');
 const brandRoutes = require('./brandRoutes');
 const modelRoutes = require('./modelRoutes');
+const inspection_slotsRoutes = require('./inspectionSlotsRoutes');
 const templateRoutes = require('./templateRoutes');
 const templateSubmissionRoutes = require('./templateSubmissionRoutes');
 
@@ -65,6 +66,7 @@ router.use("/lines", lineRoutes); // ✅ ADD THIS
 router.use("/stations", stationRoutes); // ✅ ADD THIS
 router.use("/brands", brandRoutes); // ✅ ADD THIS
 router.use("/models", modelRoutes); // ✅ ADD THIS
+router.use("/inspection_slots", inspection_slotsRoutes); // ✅ ADD THIS
 router.use("/templates", templateRoutes);
 router.use("/submissions", templateSubmissionRoutes);
 
@@ -145,7 +147,14 @@ router.get("/docs", (req, res) => {
         "PUT /:id": "Update model",
         "DELETE /:id": "Delete model",
        },
-       
+       "/api/inspection_slots": {
+        "GET /": "Get all inspection slots",
+        "GET /:id": "Get inspection slot by ID",
+        "POST /": "Create inspection slot",
+        "PUT /:id": "Update inspection slot",
+        "DELETE /:id": "Delete inspection slot",
+       },
+
       "/api/stats": {
         "GET /dashboard": "Get dashboard statistics",
         "GET /activity": "Get activity statistics (admin)",

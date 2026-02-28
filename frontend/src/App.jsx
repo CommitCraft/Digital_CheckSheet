@@ -23,6 +23,7 @@ import LinesPage from "./pages/LinesPage";
 import StationsPage from "./pages/StationsPage";
 import BrandsPage from "./pages/BrandsPage";
 import ModelsPage from "./pages/ModelsPage";
+import InspectionSlotsPage from "./pages/InspectionSlotsPage";
 import TemplateBuilder from "./template_builder/TemplateBuilder";
 import TemplatesPage from "./template_builder/TemplatesPage";
 import TemplateForm from "./template_builder/TemplateForm";
@@ -142,6 +143,11 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+              <Route path="/inspection-slots" element={
+                <ProtectedRoute>
+                  <InspectionSlotsPage />
+                </ProtectedRoute>
+              }/>
               <Route
                 path="/template_builder"
                 element={

@@ -241,7 +241,7 @@ const LoginPage = () => {
           rel="noopener noreferrer"
           className="text-green-600 dark:text-green-400 font-medium hover:underline"
         >
-          +91 7081493932
+          +91 1234567890
         </a>
       </div>
 

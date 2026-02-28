@@ -113,7 +113,15 @@ export const endpoints = {
     delete: (id) => `/models/${id}`,
     byBrand: (id) => `/models/by-brand/${id}`,
   },
-
+  // Inspection Slots
+ inspectionSlots: {
+  list: "/inspection_slots",
+  create: "/inspection_slots",
+  get: (id) => `/inspection_slots/${id}`,
+  update: (id) => `/inspection_slots/${id}`,
+  hardDelete: (id) => `/inspection_slots/${id}/hard`,
+  summary: "/inspection_slots/stats/summary",
+},
   // Templates
   templates: {
     list: "/templates",

@@ -109,13 +109,6 @@ const dropTables = async () => {
     "api_stats",
     "login_activities",
     "activity_logs",
-    "role_page_categories",
-    "role_pages_order",
-    "role_pages",
-    "user_roles",
-    "pages",
-    "roles",
-    "users",
   ];
 
   await pool.execute("SET FOREIGN_KEY_CHECKS=0");
@@ -199,9 +192,7 @@ const createTables = async () => {
     id INT AUTO_INCREMENT PRIMARY KEY,
     role_id INT,
     page_id INT,
-
     UNIQUE KEY uq_role_page (role_id,page_id),
-
     FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE,
     FOREIGN KEY (page_id) REFERENCES pages(id) ON DELETE CASCADE
   ) ENGINE=InnoDB;
@@ -224,19 +215,10 @@ const createTables = async () => {
   await pool.execute(`
       CREATE TABLE IF NOT EXISTS \`lines\` (
         id INT AUTO_INCREMENT PRIMARY KEY,
-
         name VARCHAR(100) NOT NULL UNIQUE,
-
-        status ENUM('active','inactive')
-          DEFAULT 'active',
-
-        created_at TIMESTAMP
-          DEFAULT CURRENT_TIMESTAMP,
-
-        updated_at TIMESTAMP
-          DEFAULT CURRENT_TIMESTAMP
-          ON UPDATE CURRENT_TIMESTAMP
-
+        status ENUM('active','inactive') DEFAULT 'active',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       ) ENGINE=InnoDB;
     `);
 
@@ -248,8 +230,7 @@ const createTables = async () => {
   name VARCHAR(100) NOT NULL UNIQUE,
   status ENUM('active','inactive') DEFAULT 'active',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    ON UPDATE CURRENT_TIMESTAMP
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
     `);
 
@@ -284,6 +265,27 @@ const createTables = async () => {
   UNIQUE KEY unique_model_per_brand (brand_id, name)
 ) ENGINE=InnoDB;
     `);
+
+     /* Inspection Slots */
+  await pool.execute(`
+CREATE TABLE IF NOT EXISTS \`inspection_slots\` (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  slot_id VARCHAR(20) UNIQUE NOT NULL,
+  shift CHAR(1) NOT NULL,
+  start_time TIME NOT NULL,
+  end_time TIME NOT NULL,
+  fill_window INT DEFAULT 120,
+  grace_period INT DEFAULT 10,
+  status_rule VARCHAR(100) DEFAULT 'After End → Locked',
+  backend_method VARCHAR(50) DEFAULT 'checkSlotStatus()',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+    `);
+
+
+
+
 //  Templates table
    await pool.execute(`
   CREATE TABLE IF NOT EXISTS \`templates\` (
