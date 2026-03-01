@@ -19,7 +19,8 @@ import {
   PartyPopper,
   Timer,
   AlignVerticalDistributeCenter,
-  FileTextIcon
+  FileTextIcon,
+  NewspaperIcon
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { apiService } from '../../utils/api';
@@ -95,6 +96,12 @@ const menuItems = [
   name: 'Manage Report',
   path: '/manage_report',
   icon: FileTextIcon,
+  roles: ['Super Admin', 'Admin']
+},
+{
+  name: 'New Audit',
+  path: '/audit-list',
+  icon: NewspaperIcon,
   roles: ['Super Admin', 'Admin']
 }
 

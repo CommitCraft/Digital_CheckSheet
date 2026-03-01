@@ -30,6 +30,8 @@ import TemplateForm from "./template_builder/TemplateForm";
 import TemplateSubmissions from "./template_builder/TemplateSubmissions";
 import SlotStatusPage from "./pages/SlotStatusPage";
 import ManageReportsPage from "./pages/ManageReportsPage";
+import AuditListPage from "./pages/AuditListPage";
+import NotFoundPage from "./pages/NotFoundPage";
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -211,6 +213,16 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+
+              <Route
+                path="/audit-list"
+                element={
+                  <ProtectedRoute>
+                    <AuditListPage/>
+                  </ProtectedRoute>
+                }
+              />
+              
               <Route
                 path="/iframe-test"
                 element={
@@ -232,7 +244,7 @@ function App() {
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
               {/* 404 fallback */}
-              <Route path="*" element={<Navigate to="/dashboard" replace />} />
+              <Route path="*" element={<NotFoundPage/>} />
             </Routes>
 
             {/* Global Toast Notifications */}
