@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useCallback } from "react";
 import Layout from "../components/Layout/Layout";
 import { apiService, endpoints } from "../utils/api";
-import { useParams } from "react-router-dom";
-import { Database } from "lucide-react";
+import { useParams, useNavigate } from "react-router-dom";
+import { Database, ArrowLeft } from "lucide-react";
 import LoadingSpinner from "../components/LoadingSpinner";
 import toast from "react-hot-toast";
 
@@ -17,8 +17,9 @@ function parseResponseJson(val) {
 }
 
 export default function TemplateSubmissions() {
+  const { id } = useParams();
+  const navigate = useNavigate();
 
-  const { id } = useParams(); // template_id
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -28,8 +29,11 @@ export default function TemplateSubmissions() {
       const res = await apiService.get(
         endpoints.submissions.byTemplate(id)
       );
-      // API returns a direct array
-      const arr = Array.isArray(res.data) ? res.data : (res.data?.data ?? res.data ?? []);
+
+      const arr = Array.isArray(res.data)
+        ? res.data
+        : res.data?.data ?? [];
+
       setData(Array.isArray(arr) ? arr : []);
     } catch (err) {
       toast.error("Failed to load submissions");
@@ -47,72 +51,113 @@ export default function TemplateSubmissions() {
     <Layout>
       <div className="space-y-6">
 
-        {/* Header */}
-        <div className="flex items-center gap-3">
-          <Database />
-          <h1 className="text-2xl font-bold">
-            Template Submissions
-          </h1>
+        {/* HEADER */}
+        <div className="flex items-center justify-between">
+
+          <div className="flex items-center gap-3">
+            <Database className="text-primary-600 dark:text-primary-400" />
+            <h1 className="text-2xl font-extrabold text-gray-800 dark:text-white">
+              Template Submissions
+            </h1>
+          </div>
+
+          {/* BACK BUTTON */}
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl border 
+              border-gray-200 dark:border-gray-700 
+              bg-white dark:bg-gray-800 
+              hover:bg-gray-50 dark:hover:bg-gray-700 
+              text-sm font-semibold text-gray-700 dark:text-gray-200 transition"
+          >
+            <ArrowLeft size={16} />
+            Back
+          </button>
+
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded shadow">
+        {/* TABLE CARD */}
+        <div className="rounded-2xl border border-gray-200 dark:border-gray-700 
+          bg-white dark:bg-gray-800 shadow-sm overflow-hidden">
 
           {loading ? (
-            <div className="py-12 flex justify-center">
+            <div className="py-16 flex justify-center">
               <LoadingSpinner size="lg" />
             </div>
           ) : (
 
-            <table className="w-full">
-              <thead className="bg-gray-100 dark:bg-gray-900">
-                <tr>
-                  <th className="p-3 text-left">ID</th>
-                  <th className="p-3">Submitted By</th>
-                  <th className="p-3">Response</th>
-                  <th className="p-3">Date</th>
-                </tr>
-              </thead>
+            <div className="overflow-x-auto">
 
-              <tbody>
+              <table className="min-w-full text-sm">
 
-                {data.length === 0 ? (
-                  <tr>
-                    <td colSpan="4" className="p-6 text-center text-gray-500">
-                      No submissions found
-                    </td>
+                {/* TABLE HEADER */}
+                <thead className="bg-gray-100 dark:bg-gray-900 sticky top-0 z-10">
+                  <tr className="text-gray-700 dark:text-gray-300">
+                    <th className="px-4 py-3 text-left font-bold">ID</th>
+                    <th className="px-4 py-3 text-center font-bold">Submitted By</th>
+                    <th className="px-4 py-3 text-left font-bold">Response</th>
+                    <th className="px-4 py-3 text-center font-bold">Date</th>
                   </tr>
-                ) : (
-                  data.map((s) => (
-                    <tr
-                      key={s.id}
-                      className="border-t hover:bg-gray-50 dark:hover:bg-gray-700"
-                    >
-                      <td className="p-3">{s.id}</td>
+                </thead>
 
-                      <td className="p-3 text-center">
-                        {s.submitted_by || "-"}
+                {/* TABLE BODY */}
+                <tbody>
+
+                  {data.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan="4"
+                        className="px-6 py-10 text-center text-gray-500 dark:text-gray-400"
+                      >
+                        No submissions found
                       </td>
-
-                      <td className="p-3">
-                        <pre className="text-xs bg-gray-100 dark:bg-gray-900 p-2 rounded overflow-auto max-h-40">
-                          {JSON.stringify(
-                            parseResponseJson(s.response_json),
-                            null,
-                            2
-                          )}
-                        </pre>
-                      </td>
-
-                      <td className="p-3 text-center">
-                        {new Date(s.created_at).toLocaleString()}
-                      </td>
-
                     </tr>
-                  ))
-                )}
+                  ) : (
+                    data.map((s) => (
+                      <tr
+                        key={s.id}
+                        className="border-t border-gray-200 dark:border-gray-700
+                          hover:bg-gray-50 dark:hover:bg-gray-700/50 transition"
+                      >
+                        <td className="px-4 py-3 font-semibold text-gray-800 dark:text-gray-200">
+                          {s.id}
+                        </td>
 
-              </tbody>
-            </table>
+                        <td className="px-4 py-3 text-center text-gray-700 dark:text-gray-300">
+                          {s.submitted_by || "-"}
+                        </td>
+
+                        <td className="px-4 py-3">
+
+                          <div className="rounded-xl border 
+                            border-gray-200 dark:border-gray-700
+                            bg-gray-50 dark:bg-gray-900
+                            p-3 max-h-52 overflow-auto">
+
+                            <pre className="text-xs text-gray-800 dark:text-gray-200 whitespace-pre-wrap">
+                              {JSON.stringify(
+                                parseResponseJson(s.response_json),
+                                null,
+                                2
+                              )}
+                            </pre>
+
+                          </div>
+
+                        </td>
+
+                        <td className="px-4 py-3 text-center text-gray-600 dark:text-gray-400">
+                          {new Date(s.created_at).toLocaleString()}
+                        </td>
+
+                      </tr>
+                    ))
+                  )}
+
+                </tbody>
+              </table>
+
+            </div>
 
           )}
 

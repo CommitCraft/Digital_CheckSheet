@@ -102,7 +102,7 @@ const SlotModal = ({ open, onClose, slot, refresh }) => {
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-lg overflow-hidden">
-        <div className="px-6 py-4 border-b bg-gray-50 dark:bg-gray-900/40">
+        <div className="px-6 py-4 border-b bg-gray-50 dark:bg-gray-900/40 dark:text-white">
           <h2 className="text-lg font-semibold">
             {slot ? "Edit Inspection Slot" : "Add Inspection Slot"}
           </h2>
@@ -111,11 +111,11 @@ const SlotModal = ({ open, onClose, slot, refresh }) => {
         <form onSubmit={submit} className="p-6 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Slot ID</label>
+              <label className="block text-sm font-medium mb-1 dark:text-white">Slot ID</label>
               <input
                 value={form.slot_id}
                 onChange={(e) => setForm({ ...form, slot_id: e.target.value })}
-                className={`w-full px-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 ${
+                className={`w-full px-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white ${
                   errors.slot_id ? "border-red-400" : "border-gray-300 dark:border-gray-600"
                 }`}
                 placeholder="TS1, TS2..."
@@ -126,11 +126,11 @@ const SlotModal = ({ open, onClose, slot, refresh }) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Shift</label>
+              <label className="block text-sm font-medium mb-1 dark:text-white">Shift</label>
               <select
                 value={form.shift}
                 onChange={(e) => setForm({ ...form, shift: e.target.value })}
-                className={`w-full px-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 ${
+                className={`w-full px-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white ${
                   errors.shift ? "border-red-400" : "border-gray-300 dark:border-gray-600"
                 }`}
               >
@@ -144,13 +144,13 @@ const SlotModal = ({ open, onClose, slot, refresh }) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Start Time</label>
+              <label className="block text-sm font-medium mb-1 dark:text-white">Start Time</label>
               <input
                 type="time"
                 value={form.start_time}
                 onChange={(e) => setForm({ ...form, start_time: e.target.value })}
-                className={`w-full px-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 ${
-                  errors.start_time ? "border-red-400" : "border-gray-300 dark:border-gray-600"
+                className={`w-full px-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white ${
+                  errors.start_time ? "border-red-400" : "border-gray-300 dark:border-gray-600  "
                 }`}
               />
               {errors.start_time && (
@@ -159,12 +159,12 @@ const SlotModal = ({ open, onClose, slot, refresh }) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">End Time</label>
+              <label className="block text-sm font-medium mb-1 dark:text-white">End Time</label>
               <input
                 type="time"
                 value={form.end_time}
                 onChange={(e) => setForm({ ...form, end_time: e.target.value })}
-                className={`w-full px-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 ${
+                className={`w-full px-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white ${
                   errors.end_time ? "border-red-400" : "border-gray-300 dark:border-gray-600"
                 }`}
               />
@@ -174,12 +174,12 @@ const SlotModal = ({ open, onClose, slot, refresh }) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Fill Window (Min)</label>
+              <label className="block text-sm font-medium mb-1 dark:text-white">Fill Window (Min)</label>
               <input
                 type="number"
                 value={form.fill_window}
                 onChange={(e) => setForm({ ...form, fill_window: e.target.value })}
-                className={`w-full px-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 ${
+                className={`w-full px-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white ${
                   errors.fill_window ? "border-red-400" : "border-gray-300 dark:border-gray-600"
                 }`}
               />
@@ -189,12 +189,12 @@ const SlotModal = ({ open, onClose, slot, refresh }) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Grace Period (Min)</label>
+              <label className="block text-sm font-medium mb-1 dark:text-white">Grace Period (Min)</label>
               <input
                 type="number"
                 value={form.grace_period}
                 onChange={(e) => setForm({ ...form, grace_period: e.target.value })}
-                className={`w-full px-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 ${
+                className={`w-full px-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white ${
                   errors.grace_period ? "border-red-400" : "border-gray-300 dark:border-gray-600"
                 }`}
               />
@@ -208,7 +208,7 @@ const SlotModal = ({ open, onClose, slot, refresh }) => {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg border hover:bg-gray-100 dark:hover:bg-gray-700"
+              className="px-4 py-2 rounded-lg border hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white"
             >
               Cancel
             </button>
@@ -347,11 +347,11 @@ const InspectionSlotsPage = () => {
         {/* Header */}
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold flex items-center gap-3">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
               <Clock className="h-8 w-8 text-primary-600" />
               Inspection Slots
             </h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">
+            <p className="text-gray-500 dark:text-gray-400">
               Manage inspection time slots
             </p>
           </div>
@@ -405,9 +405,9 @@ const InspectionSlotsPage = () => {
           ) : (
             <>
               <table className="w-full">
-                <thead className="bg-gray-50 dark:bg-gray-900/40 border-b">
+                <thead className="bg-gray-50 dark:bg-gray-900/40 border-b dark:text-white">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase">Slot</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase ">Slot</th>
                     <th className="px-6 py-3 text-center text-xs font-semibold uppercase">Shift</th>
                     <th className="px-6 py-3 text-center text-xs font-semibold uppercase">Time</th>
                     <th className="px-6 py-3 text-center text-xs font-semibold uppercase">Fill/Grace</th>
@@ -418,10 +418,10 @@ const InspectionSlotsPage = () => {
 
                 <tbody>
                   {slots.map((s) => (
-                    <tr key={s.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/40 transition">
+                    <tr key={s.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/40 transition dark:text-white">
                       <td className="px-6 py-4">
                         <p className="font-semibold">{s.slot_id}</p>
-                        <p className="text-xs text-gray-500">ID: {s.id}</p>
+                        <p className="text-xs text-gray-500 dark:text-white/50">ID: {s.id}</p>
                       </td>
 
                       <td className="px-6 py-4 text-center">

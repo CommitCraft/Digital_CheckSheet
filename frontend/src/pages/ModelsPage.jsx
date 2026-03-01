@@ -297,7 +297,7 @@ const ModelsPage = () => {
               <Settings className="h-8 w-8 text-primary-600 dark:text-primary-400" />
               Model Master
             </h1>
-            <p className="mt-2 text-gray-600 dark:text-gray-400">
+            <p className="text-gray-600 dark:text-gray-400">
               Manage product models
             </p>
           </div>

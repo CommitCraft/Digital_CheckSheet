@@ -18,7 +18,7 @@ import LoadingSpinner from "../components/LoadingSpinner";
 import toast from "react-hot-toast";
 
 /* ===============================
-   MODAL (Themed)
+   MODAL
 ================================*/
 
 const LineModal = ({ open, onClose, line, refresh }) => {
@@ -30,6 +30,7 @@ const LineModal = ({ open, onClose, line, refresh }) => {
   useEffect(() => {
     if (!open) return;
     setNameError("");
+
     if (line) {
       setName(line.name || "");
       setStatus(line.status || "active");
@@ -46,7 +47,6 @@ const LineModal = ({ open, onClose, line, refresh }) => {
       setNameError("Line name is required");
       return;
     }
-    setNameError("");
 
     setLoading(true);
 
@@ -71,40 +71,57 @@ const LineModal = ({ open, onClose, line, refresh }) => {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
-        <div className="px-6 py-4 border-b bg-gray-50 dark:bg-gray-900/40">
-          <h2 className="text-lg font-semibold">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-md border border-gray-200 dark:border-gray-700 overflow-hidden">
+
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+          <h2 className="text-lg font-semibold text-gray-800 dark:text-white">
             {line ? "Edit Line" : "Add Line"}
           </h2>
         </div>
 
         <form onSubmit={submit} className="p-6 space-y-4">
+
           <div>
-            <label className="block text-sm font-medium mb-1">
+            <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
               Line Name
             </label>
+
             <input
               value={name}
-              onChange={(e) => { setName(e.target.value); if (nameError) setNameError(""); }}
-              className={`w-full px-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 ${
-                nameError ? "border-red-400 dark:border-red-500" : "border-gray-300 dark:border-gray-600"
-              }`}
+              onChange={(e) => {
+                setName(e.target.value);
+                if (nameError) setNameError("");
+              }}
+              className={`w-full px-3 py-2.5 rounded-lg border 
+                bg-white dark:bg-gray-700 
+                text-gray-800 dark:text-white
+                border-gray-300 dark:border-gray-600
+                focus:ring-2 focus:ring-primary-500
+                ${nameError ? "border-red-500" : ""}`}
               placeholder="Enter line name"
             />
+
             {nameError && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{nameError}</p>
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                {nameError}
+              </p>
             )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">
+            <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
               Status
             </label>
+
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value)}
-              className="w-full px-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700"
+              className="w-full px-3 py-2.5 rounded-lg border
+                bg-white dark:bg-gray-700
+                text-gray-800 dark:text-white
+                border-gray-300 dark:border-gray-600
+                focus:ring-2 focus:ring-primary-500"
             >
               <option value="active">Active</option>
               <option value="inactive">Inactive</option>
@@ -115,14 +132,19 @@ const LineModal = ({ open, onClose, line, refresh }) => {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg border hover:bg-gray-100 dark:hover:bg-gray-700"
+              className="px-4 py-2 rounded-lg border
+                border-gray-300 dark:border-gray-600
+                bg-white dark:bg-gray-700
+                text-gray-700 dark:text-gray-200
+                hover:bg-gray-100 dark:hover:bg-gray-600"
             >
               Cancel
             </button>
 
             <button
               disabled={loading}
-              className="px-4 py-2 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-lg shadow-md hover:shadow-lg disabled:opacity-50 flex items-center"
+              className="px-4 py-2 bg-gradient-to-r from-primary-600 to-primary-700 
+                text-white rounded-lg shadow-md hover:shadow-lg disabled:opacity-50 flex items-center"
             >
               {loading && <LoadingSpinner size="sm" className="mr-2" />}
               Save
@@ -135,7 +157,7 @@ const LineModal = ({ open, onClose, line, refresh }) => {
 };
 
 /* ===============================
-   MAIN PAGE (Themed)
+   MAIN PAGE
 ================================*/
 
 const LinesPage = () => {
@@ -169,8 +191,9 @@ const LinesPage = () => {
       } else {
         setTotalPages(1);
       }
+
     } catch (err) {
-      toast.error(err?.response?.data?.message || "Failed to load lines");
+      toast.error("Failed to load lines");
       setLines([]);
     } finally {
       setLoading(false);
@@ -182,8 +205,7 @@ const LinesPage = () => {
   }, [load]);
 
   const toggleStatus = async (line) => {
-    const newStatus =
-      line.status === "active" ? "inactive" : "active";
+    const newStatus = line.status === "active" ? "inactive" : "active";
 
     try {
       await apiService.post(endpoints.lines.status(line.id), {
@@ -191,8 +213,8 @@ const LinesPage = () => {
       });
       toast.success("Status updated");
       load();
-    } catch (err) {
-      toast.error(err?.response?.data?.message || "Failed to update status");
+    } catch {
+      toast.error("Failed to update status");
     }
   };
 
@@ -203,8 +225,8 @@ const LinesPage = () => {
       await apiService.delete(endpoints.lines.delete(id));
       toast.success("Deleted");
       load();
-    } catch (err) {
-      toast.error(err?.response?.data?.message || "Failed to delete line");
+    } catch {
+      toast.error("Failed to delete line");
     }
   };
 
@@ -218,10 +240,10 @@ const LinesPage = () => {
     const active = s === "active";
     return (
       <span
-        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-          active
-            ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-            : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
+        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+        ${active
+          ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+          : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
         }`}
       >
         {active ? <CheckCircle className="h-3 w-3 mr-1" /> : <XCircle className="h-3 w-3 mr-1" />}
@@ -237,7 +259,7 @@ const LinesPage = () => {
         {/* Header */}
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold flex items-center gap-3">
+            <h1 className="text-3xl font-bold flex items-center gap-3 text-gray-800 dark:text-white">
               <Settings className="h-8 w-8 text-primary-600" />
               Production Lines
             </h1>
@@ -251,7 +273,9 @@ const LinesPage = () => {
               setSelected(null);
               setOpen(true);
             }}
-            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-lg shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all"
+            className="flex items-center gap-2 px-6 py-3 
+              bg-gradient-to-r from-primary-600 to-primary-700 
+              text-white rounded-lg shadow-md hover:shadow-lg transition"
           >
             <Plus className="h-5 w-5" />
             Add Line
@@ -260,13 +284,14 @@ const LinesPage = () => {
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <StatCard title="Total Lines" value={stats.total} color="primary" />
-          <StatCard title="Active" value={stats.active} color="green" />
-          <StatCard title="Inactive" value={stats.inactive} color="red" />
+          <StatCard title="Total Lines" value={stats.total} />
+          <StatCard title="Active" value={stats.active} />
+          <StatCard title="Inactive" value={stats.inactive} />
         </div>
 
         {/* Search */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border p-4">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm 
+          border border-gray-200 dark:border-gray-700 p-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
@@ -276,34 +301,39 @@ const LinesPage = () => {
                 setPage(1);
               }}
               placeholder="Search lines..."
-              className="w-full pl-10 pr-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700"
+              className="w-full pl-10 pr-4 py-2.5 rounded-lg border
+                border-gray-300 dark:border-gray-600
+                bg-white dark:bg-gray-700
+                text-gray-800 dark:text-white
+                focus:ring-2 focus:ring-primary-500"
             />
           </div>
         </div>
 
         {/* Table */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg 
+          border border-gray-200 dark:border-gray-700 overflow-hidden">
+
           {loading ? (
             <div className="py-14 flex justify-center">
               <LoadingSpinner size="lg" />
             </div>
           ) : lines.length === 0 ? (
-            <div className="text-center py-14">
-              <Settings className="h-10 w-10 mx-auto text-gray-400 mb-3" />
-              <p className="text-gray-500">No lines found</p>
+            <div className="text-center py-14 text-gray-500 dark:text-gray-400">
+              No lines found
             </div>
           ) : (
             <>
-              <table className="w-full">
-                <thead className="bg-gray-50 dark:bg-gray-900/40 border-b">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase">
+              <table className="w-full text-sm">
+                <thead className="bg-gray-100 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+                  <tr className="text-gray-600 dark:text-gray-300">
+                    <th className="px-6 py-3 text-left font-semibold uppercase">
                       Line
                     </th>
-                    <th className="px-6 py-3 text-center text-xs font-semibold uppercase">
+                    <th className="px-6 py-3 text-center font-semibold uppercase">
                       Status
                     </th>
-                    <th className="px-6 py-3 text-right text-xs font-semibold uppercase">
+                    <th className="px-6 py-3 text-right font-semibold uppercase">
                       Actions
                     </th>
                   </tr>
@@ -311,10 +341,18 @@ const LinesPage = () => {
 
                 <tbody>
                   {lines.map((l) => (
-                    <tr key={l.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/40 transition">
+                    <tr
+                      key={l.id}
+                      className="border-t border-gray-200 dark:border-gray-700
+                        hover:bg-gray-50 dark:hover:bg-gray-700/40 transition"
+                    >
                       <td className="px-6 py-4">
-                        <p className="font-semibold">{l.name}</p>
-                        <p className="text-xs text-gray-500">ID: {l.id}</p>
+                        <p className="font-semibold text-gray-800 dark:text-gray-200">
+                          {l.name}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          ID: {l.id}
+                        </p>
                       </td>
 
                       <td className="px-6 py-4 text-center">
@@ -325,7 +363,7 @@ const LinesPage = () => {
                         <div className="flex justify-end gap-2">
                           <button
                             onClick={() => toggleStatus(l)}
-                            className="p-2 text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-lg"
+                            className="p-2 text-amber-600 hover:bg-amber-100 dark:hover:bg-amber-900/20 rounded-lg"
                           >
                             <RefreshCcw className="h-4 w-4" />
                           </button>
@@ -335,14 +373,14 @@ const LinesPage = () => {
                               setSelected(l);
                               setOpen(true);
                             }}
-                            className="p-2 text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg"
+                            className="p-2 text-primary-600 hover:bg-primary-100 dark:hover:bg-primary-900/20 rounded-lg"
                           >
                             <Edit className="h-4 w-4" />
                           </button>
 
                           <button
                             onClick={() => deleteLine(l.id)}
-                            className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg"
+                            className="p-2 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-lg"
                           >
                             <Trash2 className="h-4 w-4" />
                           </button>
@@ -354,22 +392,32 @@ const LinesPage = () => {
               </table>
 
               {totalPages > 1 && (
-                <div className="flex justify-between items-center px-6 py-4 border-t bg-gray-50 dark:bg-gray-900/40">
+                <div className="flex justify-between items-center px-6 py-4 
+                  border-t border-gray-200 dark:border-gray-700 
+                  bg-gray-50 dark:bg-gray-900">
                   <span className="text-sm text-gray-600 dark:text-gray-400">
                     Page {page} of {totalPages}
                   </span>
+
                   <div className="flex gap-2">
                     <button
                       disabled={page === 1}
                       onClick={() => setPage((p) => p - 1)}
-                      className="p-2 border rounded-lg"
+                      className="p-2 rounded-lg border
+                        border-gray-300 dark:border-gray-600
+                        bg-white dark:bg-gray-800
+                        hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
                       <ChevronLeft size={18} />
                     </button>
+
                     <button
                       disabled={page === totalPages}
                       onClick={() => setPage((p) => p + 1)}
-                      className="p-2 border rounded-lg"
+                      className="p-2 rounded-lg border
+                        border-gray-300 dark:border-gray-600
+                        bg-white dark:bg-gray-800
+                        hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
                       <ChevronRight size={18} />
                     </button>
@@ -387,24 +435,20 @@ const LinesPage = () => {
 };
 
 /* ===============================
-   STAT CARD COMPONENT
+   STAT CARD
 ================================*/
 
-const StatCard = ({ title, value, color }) => {
-  const colorMap = {
-    primary: "bg-primary-50 dark:bg-primary-900/20 text-primary-700",
-    green: "bg-green-50 dark:bg-green-900/20 text-green-700",
-    red: "bg-red-50 dark:bg-red-900/20 text-red-700",
-  };
-
-  return (
-    <div className={`p-5 rounded-xl shadow-sm border ${colorMap[color]}`}>
-      <p className="text-xs uppercase font-semibold text-gray-500">
-        {title}
-      </p>
-      <h2 className="text-2xl font-bold mt-1">{value}</h2>
-    </div>
-  );
-};
+const StatCard = ({ title, value }) => (
+  <div className="p-5 rounded-xl shadow-sm border 
+    border-gray-200 dark:border-gray-700
+    bg-white dark:bg-gray-800">
+    <p className="text-xs uppercase font-semibold text-gray-500 dark:text-gray-400">
+      {title}
+    </p>
+    <h2 className="text-2xl font-bold mt-1 text-gray-800 dark:text-white">
+      {value}
+    </h2>
+  </div>
+);
 
 export default LinesPage;
