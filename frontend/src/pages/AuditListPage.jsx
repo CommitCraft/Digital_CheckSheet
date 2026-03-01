@@ -174,7 +174,7 @@ const AuditListPage = () => {
             {/* Filter */}
             <button
               onClick={openDrawer}
-              className="flex items-center gap-2 px-4 py-2 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 text-sm"
+              className="flex items-center gap-2 px-4 py-2 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-800 text-sm"
             >
               <Filter size={16} />
               Filter

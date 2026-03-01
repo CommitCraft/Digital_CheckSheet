@@ -62,6 +62,7 @@ const initializeDatabase = async () => {
     await conn.end();
 
     await createTables();
+    await seedPages();
     await createSuperAdmin();
 
     console.log("✅ Database Initialized");
@@ -162,13 +163,17 @@ const createTables = async () => {
   await pool.execute(`
   CREATE TABLE IF NOT EXISTS pages (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100),
-    url VARCHAR(255),
+    name VARCHAR(100) NOT NULL,
+    url VARCHAR(255) NOT NULL UNIQUE,
     icon VARCHAR(255),
+    display_order INT DEFAULT 0,
     is_external BOOLEAN DEFAULT 0,
-    status ENUM('active','inactive') DEFAULT 'active'
+    status ENUM('active','inactive') DEFAULT 'active',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      ON UPDATE CURRENT_TIMESTAMP
   ) ENGINE=InnoDB;
-  `);
+`);
 
   /* USER ROLES */
 
@@ -426,6 +431,40 @@ const createSuperAdmin = async () => {
   console.log("✅ Super Admin Created");
   console.log("👉 Username:", ADMIN_USER);
   console.log("👉 Password:", ADMIN_PASS);
+};
+
+/* ===============================
+   Insert All Sidebar Pages Automatically
+================================*/
+
+const seedPages = async () => {
+  const pages = [
+    ['Dashboard','/dashboard','LayoutDashboard'],
+    ['Users','/users','Users'],
+    ['Roles','/roles','Shield'],
+    ['Pages','/pages','FileText'],
+    ['Lines','/lines','LucideChartNoAxesGantt'],
+    ['Station','/stations','TrainIcon'],
+    ['Brand','/brands','BrainIcon'],
+    ['Model','/models','PartyPopper'],
+    ['Inspection Slot','/inspection-slots','Timer'],
+    ['Templates','/templates','ListChecks'],
+    ['Addons','/addons','AlignVerticalDistributeCenter'],
+    ['Manage Report','/manage_report','FileTextIcon'],
+    ['New Audit','/audit-list','NewspaperIcon']
+  ];
+
+  for (const p of pages) {
+    await pool.execute(`
+      INSERT INTO pages (name,url,icon,status)
+      SELECT ?,?,?, 'active'
+      WHERE NOT EXISTS (
+        SELECT 1 FROM pages WHERE url=?
+      )
+    `,[p[0],p[1],p[2],p[1]]);
+  }
+
+  console.log("✅ Pages Seeded");
 };
 
 /* ===============================
