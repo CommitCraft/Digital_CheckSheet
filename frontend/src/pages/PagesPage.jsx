@@ -9,7 +9,6 @@ import {
   Search,
   Link as LinkIcon,
   Eye,
-  Shield,
   Globe,
   Monitor
 } from 'lucide-react';
@@ -127,7 +126,7 @@ const PageModal = ({ isOpen, onClose, page, onSave }) => {
             {page ? 'Edit Page' : 'Add New Page'}
           </h3>
         </div>
-        
+         
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {/* Page Name */}
           <div>
@@ -367,7 +366,7 @@ const PagesPage = () => {
           </div>
           <button
             onClick={handleAddPage}
-            className="flex items-center justify-center px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-lg hover:from-primary-700 hover:to-primary-800 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5"
+              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-lg hover:shadow-lg hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all duration-200 shadow-md font-medium"
           >
             <Plus className="h-5 w-5 mr-2" />
             Add New Page

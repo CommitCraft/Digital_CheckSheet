@@ -28,6 +28,8 @@ import TemplateBuilder from "./template_builder/TemplateBuilder";
 import TemplatesPage from "./template_builder/TemplatesPage";
 import TemplateForm from "./template_builder/TemplateForm";
 import TemplateSubmissions from "./template_builder/TemplateSubmissions";
+import SlotStatusPage from "./pages/SlotStatusPage";
+import ManageReportsPage from "./pages/ManageReportsPage";
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -189,6 +191,23 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <TemplateSubmissions />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/addons"
+                element={
+                  <ProtectedRoute>
+                    <SlotStatusPage/>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/manage_report"
+                element={
+                  <ProtectedRoute>
+                    <ManageReportsPage/>
                   </ProtectedRoute>
                 }
               />

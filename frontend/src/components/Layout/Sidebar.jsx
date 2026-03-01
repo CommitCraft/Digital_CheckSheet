@@ -17,7 +17,9 @@ import {
   TrainIcon,
   BrainIcon,
   PartyPopper,
-  Timer
+  Timer,
+  AlignVerticalDistributeCenter,
+  FileTextIcon
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { apiService } from '../../utils/api';
@@ -82,7 +84,20 @@ const menuItems = [
   path: '/templates',
   icon: ListChecks,
   roles: ['Super Admin', 'Admin']
+},
+ {
+  name: 'Addons',
+  path: '/addons',
+  icon: AlignVerticalDistributeCenter,
+  roles: ['Super Admin', 'Admin']
+},
+{
+  name: 'Manage Report',
+  path: '/manage_report',
+  icon: FileTextIcon,
+  roles: ['Super Admin', 'Admin']
 }
+
 ];
 
 const roleMapping = {
