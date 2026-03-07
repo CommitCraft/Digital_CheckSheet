@@ -1,5 +1,5 @@
 import React from "react";
-import Layout from "../components/Layout/Layout";
+
 import { AlertTriangle, Home } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -7,7 +7,7 @@ const NotFoundPage = () => {
   const navigate = useNavigate();
 
   return (
-    <Layout>
+   
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 transition-colors px-6">
         
         <div className="text-center max-w-md">
@@ -46,7 +46,7 @@ const NotFoundPage = () => {
         </div>
 
       </div>
-    </Layout>
+    
   );
 };
 
