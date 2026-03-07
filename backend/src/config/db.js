@@ -203,17 +203,69 @@ const createTables = async () => {
   ) ENGINE=InnoDB;
   `);
 
-  /* ACTIVITY LOG */
+  
+// Activity Log table
+    await pool.execute(`
+      CREATE TABLE IF NOT EXISTS activity_logs (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NULL,
+        username VARCHAR(50) NULL,
+        action VARCHAR(100) NOT NULL,
+        resource VARCHAR(100) NULL,
+        resource_id INT NULL,
+        ip_address VARCHAR(45) NULL,
+        user_agent TEXT NULL,
+        details JSON NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_user_id (user_id),
+        INDEX idx_action (action),
+        INDEX idx_created_at (created_at),
+        INDEX idx_username (username)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    `);
+    console.log('✅ Created activity_logs table');
 
-  await pool.execute(`
-  CREATE TABLE IF NOT EXISTS activity_logs (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT,
-    action VARCHAR(100),
-    details JSON,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-  ) ENGINE=InnoDB;
-  `);
+
+    // Login Activity table
+    await pool.execute(`
+      CREATE TABLE IF NOT EXISTS login_activities (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NULL,
+        username VARCHAR(50) NULL,
+        ip_address VARCHAR(45) NULL,
+        user_agent TEXT NULL,
+        success BOOLEAN NOT NULL DEFAULT TRUE,
+        login_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        logout_time TIMESTAMP NULL,
+        session_duration INT NULL,
+        INDEX idx_user_id (user_id),
+        INDEX idx_username (username),
+        INDEX idx_login_time (login_time),
+        INDEX idx_success (success)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    `);
+    console.log('✅ Created login_activities table');
+
+    
+    // API Stats table for latency tracking
+    await pool.execute(`
+      CREATE TABLE IF NOT EXISTS api_stats (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        endpoint VARCHAR(255) NOT NULL,
+        method VARCHAR(10) NOT NULL,
+        response_time_ms INT NOT NULL,
+        status_code INT NOT NULL,
+        user_id INT NULL,
+        ip_address VARCHAR(45) NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_endpoint (endpoint),
+        INDEX idx_method (method),
+        INDEX idx_response_time (response_time_ms),
+        INDEX idx_created_at (created_at),
+        INDEX idx_user_id (user_id)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    `);
+    console.log('✅ Created api_stats table');
 
   /* LINES */
 
@@ -354,15 +406,31 @@ CREATE TABLE IF NOT EXISTS \`inspection_slots\` (
   ) ENGINE=InnoDB;
   `);
 
-  /* Add cat_key column to role_pages_order if it doesn't exist yet */
-  try {
-    await pool.execute(`
-      ALTER TABLE role_pages_order
-      ADD COLUMN cat_key VARCHAR(100) NULL DEFAULT NULL
-    `);
-  } catch (e) {
-    if (e.code !== 'ER_DUP_FIELDNAME') throw e;
-  }
+
+  // Role Pages Order table (for page hierarchy)
+await pool.execute(`
+  CREATE TABLE IF NOT EXISTS role_pages_order (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    role_id INT NOT NULL,
+    page_id INT NOT NULL,
+    parent_page_id INT NULL,
+    display_order INT DEFAULT 0,
+    cat_key VARCHAR(100) NULL DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    UNIQUE KEY unique_role_page_order (role_id, page_id),
+    INDEX idx_role_id (role_id),
+    INDEX idx_page_id (page_id),
+    INDEX idx_parent_page_id (parent_page_id),
+    INDEX idx_display_order (display_order),
+
+    FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE,
+    FOREIGN KEY (page_id) REFERENCES pages(id) ON DELETE CASCADE,
+    FOREIGN KEY (parent_page_id) REFERENCES pages(id) ON DELETE CASCADE
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+`);
+
 
   await pool.execute("SET FOREIGN_KEY_CHECKS=1;");
 
@@ -374,9 +442,9 @@ CREATE TABLE IF NOT EXISTS \`inspection_slots\` (
 ================================*/
 
 const createSuperAdmin = async () => {
-  const ADMIN_USER = process.env.ADMIN_USER || "admin";
-  const ADMIN_PASS = process.env.ADMIN_PASS || "admin@123";
-  const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@system.com";
+  const ADMIN_USER = process.env.ADMIN_USER;
+  const ADMIN_PASS = process.env.ADMIN_PASS ;
+  const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
 
   // Check role
   const [role] = await pool.execute(
@@ -430,6 +498,7 @@ const createSuperAdmin = async () => {
 
   console.log("✅ Super Admin Created");
   console.log("👉 Username:", ADMIN_USER);
+  console.log("👉 Email:", ADMIN_EMAIL);
   console.log("👉 Password:", ADMIN_PASS);
 };
 

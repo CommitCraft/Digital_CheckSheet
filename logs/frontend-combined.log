@@ -1625,7 +1625,7 @@
 2025-11-11 12:56 +05:30:   [32m[1mVITE[22m v7.1.9[39m  [2mready in [0m[1m233[22m[2m[0m ms[22m
 2025-11-11 12:56 +05:30: 
 2025-11-11 12:56 +05:30:   [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m8800[22m/[39m
-2025-11-11 12:56 +05:30:   [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.1.33:[1m8800[22m/[39m
+2025-11-11 12:56 +05:30:   [32m➜[39m  [1mNetwork[22m: [36mhttp:// 192.168.137.1:[1m8800[22m/[39m
 2025-11-11 12:56 +05:30:   [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.40.157:[1m8800[22m/[39m
 2025-11-11 16:53 +05:30: [2m4:53:36 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /src/components/Layout/Layout.jsx[22m
 2025-11-11 16:53 +05:30: [2m4:53:52 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /src/components/Layout/Layout.jsx[22m
