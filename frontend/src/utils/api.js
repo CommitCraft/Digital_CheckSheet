@@ -113,6 +113,12 @@ export const endpoints = {
     delete: (id) => `/models/${id}`,
     byBrand: (id) => `/models/by-brand/${id}`,
   },
+
+  // Audit
+audit: {
+  config: "/audit/config",
+  currentSlot: "/audit/current-slot"
+},
   // Inspection Slots
  inspectionSlots: {
   list: "/inspection_slots",

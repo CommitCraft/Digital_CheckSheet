@@ -32,6 +32,8 @@ import SlotStatusPage from "./pages/SlotStatusPage";
 import ManageReportsPage from "./pages/ManageReportsPage";
 import AuditListPage from "./pages/AuditListPage";
 import NotFoundPage from "./pages/NotFoundPage";
+import CreateAuditPage from "./pages/audits/CreateAuditPage";
+import AuditTemplatePage from "./pages/audits/AuditTemplatePage";
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -219,6 +221,23 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <AuditListPage/>
+                  </ProtectedRoute>
+                }
+              />
+               <Route
+                path="/audits/new"
+                element={
+                  <ProtectedRoute>
+                    <CreateAuditPage/>
+                  </ProtectedRoute>
+                }
+              />
+
+               <Route
+                path="/audits/new/template"
+                element={
+                  <ProtectedRoute>
+                    <AuditTemplatePage/>
                   </ProtectedRoute>
                 }
               />

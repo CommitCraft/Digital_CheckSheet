@@ -187,7 +187,7 @@ const AuditListPage = () => {
 
             {/* Start New */}
             <button
-              onClick={() => alert("Start New Audit: hook this to your create flow")}
+              onClick={() => navigate("/audits/new")}
               className="flex items-center gap-2 px-4 py-2 rounded-md bg-green-500 hover:bg-green-600 text-white text-sm"
             >
               <Plus size={16} />
