@@ -1,32 +1,62 @@
 import React, { useEffect, useState } from "react";
 import Layout from "../../components/Layout/Layout";
-import { useLocation } from "react-router-dom";
-import { Calendar, Clock, Package, User } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Calendar, Clock, Package, User, ArrowLeft } from "lucide-react";
 import { apiService, endpoints } from "../../utils/api";
 import toast from "react-hot-toast";
 
 const AuditTemplatePage = () => {
 
   const { state } = useLocation();
+  const navigate = useNavigate();
 
-  const [fields,setFields] = useState([]);
-  const [answers,setAnswers] = useState({});
-  const [activeSlot,setActiveSlot] = useState(state?.current_slot || null);
+  const [fields, setFields] = useState([]);
+  const [answers, setAnswers] = useState({});
+  const [activeSlot, setActiveSlot] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  /* ===============================
+     CHECK STATE
+  =============================== */
+
+  useEffect(() => {
+    if (!state) {
+      toast.error("Invalid audit session");
+      navigate("/audits/new");
+    }
+  }, []);
+
+  /* ===============================
+     GET SLOT FROM PREVIOUS PAGE
+  =============================== */
+
+  useEffect(() => {
+
+    if (!state?.slots) return;
+
+    const openSlot = state.slots.find(s => s.runtime_status === "OPEN");
+    const graceSlot = state.slots.find(s => s.runtime_status === "GRACE");
+
+    setActiveSlot(openSlot || graceSlot || null);
+
+  }, [state]);
 
   /* ===============================
      LOAD TEMPLATE
   =============================== */
 
-  useEffect(()=>{
+  useEffect(() => {
 
-    const loadTemplate = async()=>{
+    const loadTemplate = async () => {
 
-      try{
+      try {
+
+        setLoading(true);
 
         const res = await apiService.get(
           endpoints.templates.list,
           {
-            params:{
+            params: {
               entity_type: state.entityType,
               entity_id: state.entityId
             }
@@ -35,7 +65,7 @@ const AuditTemplatePage = () => {
 
         const templates = res?.data?.data?.templates || [];
 
-        if(!templates.length){
+        if (!templates.length) {
           toast.error("No template found");
           return;
         }
@@ -50,51 +80,55 @@ const AuditTemplatePage = () => {
         setFields(schema?.fields || []);
 
       }
-      catch(e){
+      catch (e) {
 
         console.error(e);
         toast.error("Failed to load template");
 
       }
+      finally {
+        setLoading(false);
+      }
 
     };
 
-    loadTemplate();
+    if (state?.entityType && state?.entityId) {
+      loadTemplate();
+    }
 
-  },[state.entityType,state.entityId]);
-
-
+  }, [state?.entityType, state?.entityId]);
 
   /* ===============================
      ANSWER CHANGE
   =============================== */
 
-  const handleChange = (id,value)=>{
+  const handleChange = (id, value) => {
 
-    setAnswers(prev=>({
+    setAnswers(prev => ({
       ...prev,
-      [id]:value
+      [id]: value
     }));
 
   };
-
-
 
   /* ===============================
      SUBMIT AUDIT
   =============================== */
 
-  const handleSubmit = async()=>{
+  const handleSubmit = async () => {
 
-    try{
+    if (!activeSlot) {
+      toast.error("No active slot available");
+      return;
+    }
+
+    try {
 
       const payload = {
-
         entity_type: state.entityType,
         entity_id: state.entityId,
-        slot_id: activeSlot?.id,
+        slot_id: activeSlot.id,
         answers
-
       };
 
       await apiService.post(
@@ -104,8 +138,10 @@ const AuditTemplatePage = () => {
 
       toast.success("Audit submitted successfully");
 
+      navigate(-1);
+
     }
-    catch(e){
+    catch (e) {
 
       console.error(e);
       toast.error("Audit submission failed");
@@ -114,65 +150,68 @@ const AuditTemplatePage = () => {
 
   };
 
-
-
   return (
-
     <Layout>
 
       <div className="min-h-screen p-6 bg-gray-50 dark:bg-gray-950">
 
-        {/* ===============================
-           AUDIT HEADER
-        =============================== */}
+        {/* HEADER */}
 
         <div className="max-w-6xl mx-auto bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm p-6 mb-6">
 
-          <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">
-            Audit Details
-          </h2>
+          <div className="flex items-center justify-between mb-4">
+
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+              Audit Details
+            </h2>
+
+            <button
+              onClick={() => navigate(-1)}
+              className="flex items-center gap-1 px-3 py-2 text-sm rounded-lg border dark:text-white border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800"
+            >
+              Back
+              <ArrowLeft size={16}/>
+            </button>
+
+          </div>
 
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
 
             <Info
               label="Entity Type"
-              value={state.entityType}
+              value={state?.entityType?.charAt(0).toUpperCase() + state?.entityType?.slice(1)}
+              icon={<Package size={14}/>}
+            />
+
+            <Info
+              label="Entity"
+              value={state?.entityName}
               icon={<Package size={14}/>}
             />
 
             <Info
               label="Auditor"
-              value={state.auditor}
+              value={state?.auditor}
               icon={<User size={14}/>}
             />
 
             <Info
               label="Date"
-              value={state.date}
+              value={state?.date}
               icon={<Calendar size={14}/>}
             />
 
             <Info
               label="Time"
-              value={state.time}
+              value={state?.time}
               icon={<Clock size={14}/>}
-            />
-
-            <Info
-              label="Report"
-              value={state.reportType}
-              icon={<Package size={14}/>}
             />
 
           </div>
 
         </div>
 
-
-
-        {/* ===============================
-           ACTIVE SLOT
-        =============================== */}
+        {/* SLOT */}
 
         {activeSlot && (
 
@@ -194,44 +233,43 @@ const AuditTemplatePage = () => {
 
         )}
 
-
-
-        {/* ===============================
-           TEMPLATE QUESTIONS
-        =============================== */}
+        {/* QUESTIONS */}
 
         <div className="max-w-6xl mx-auto space-y-6">
 
-          {fields.map(field=>(
-            
-            <div
-              key={field.id}
-              className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm p-6"
-            >
+          {loading ? (
+            <div className="text-center text-gray-500">Loading template...</div>
+          ) : (
 
-              <Question
-                question={field}
-                value={answers[field.id]}
-                onChange={handleChange}
-              />
+            fields.map(field => (
 
-            </div>
+              <div
+                key={field.id}
+                className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm p-6"
+              >
 
-          ))}
+                <Question
+                  question={field}
+                  value={answers[field.id]}
+                  onChange={handleChange}
+                />
+
+              </div>
+
+            ))
+
+          )}
 
         </div>
 
-
-
-        {/* ===============================
-           SUBMIT BUTTON
-        =============================== */}
+        {/* SUBMIT */}
 
         <div className="max-w-6xl mx-auto mt-6 flex justify-end">
 
           <button
             onClick={handleSubmit}
-            className="px-6 py-3 rounded-xl bg-primary-600 text-white font-bold hover:bg-primary-700"
+            disabled={!activeSlot}
+            className="px-6 py-3 rounded-xl bg-primary-600 text-white font-bold hover:bg-primary-700 disabled:opacity-50"
           >
             Submit Audit
           </button>
@@ -241,7 +279,6 @@ const AuditTemplatePage = () => {
       </div>
 
     </Layout>
-
   );
 
 };
@@ -249,12 +286,9 @@ const AuditTemplatePage = () => {
 export default AuditTemplatePage;
 
 
+/* INFO COMPONENT */
 
-/* ===============================
-   INFO COMPONENT
-=============================== */
-
-const Info = ({label,value,icon})=>(
+const Info = ({ label, value, icon }) => (
 
   <div>
 
@@ -272,41 +306,35 @@ const Info = ({label,value,icon})=>(
 );
 
 
+/* QUESTION COMPONENT */
 
-/* ===============================
-   QUESTION COMPONENT
-=============================== */
+const Question = ({ question, value, onChange }) => {
 
-const Question = ({question,value,onChange})=>{
+  if (question.type === "text" || question.type === "number") {
 
-  if(question.type === "text" || question.type === "number"){
-
-    return(
-
+    return (
       <div>
 
         <div className="text-sm mb-2 text-gray-700 dark:text-gray-200">
           {question.label}
+          {question.required && <span className="text-red-500 ml-1">*</span>}
         </div>
 
         <input
           type={question.type}
           value={value || ""}
-          onChange={(e)=>onChange(question.id,e.target.value)}
-          className="w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-800 dark:border-gray-700"
+          onChange={(e) => onChange(question.id, e.target.value)}
+          className="w-full px-3 py-2 border rounded-lg bg-white dark:text-white dark:bg-gray-800 dark:border-gray-700"
         />
 
       </div>
-
     );
 
   }
 
+  if (question.type === "radio") {
 
-
-  if(question.type === "radio"){
-
-    return(
+    return (
 
       <div>
 
@@ -314,13 +342,13 @@ const Question = ({question,value,onChange})=>{
           {question.label}
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
 
-          {question.options?.map(opt=>(
-            
+          {question.options?.map(opt => (
+
             <button
               key={opt}
-              onClick={()=>onChange(question.id,opt)}
+              onClick={() => onChange(question.id, opt)}
               className={`px-3 py-1 rounded ${
                 value === opt
                   ? "bg-green-500 text-white"
@@ -340,18 +368,16 @@ const Question = ({question,value,onChange})=>{
 
   }
 
+  if (question.type === "checkbox") {
 
-
-  if(question.type === "checkbox"){
-
-    return(
+    return (
 
       <div className="flex items-center gap-2">
 
         <input
           type="checkbox"
           checked={value || false}
-          onChange={(e)=>onChange(question.id,e.target.checked)}
+          onChange={(e) => onChange(question.id, e.target.checked)}
         />
 
         <span className="text-gray-700 dark:text-gray-200">
@@ -364,11 +390,9 @@ const Question = ({question,value,onChange})=>{
 
   }
 
+  if (question.type === "date") {
 
-
-  if(question.type === "date"){
-
-    return(
+    return (
 
       <div>
 
@@ -379,7 +403,7 @@ const Question = ({question,value,onChange})=>{
         <input
           type="date"
           value={value || ""}
-          onChange={(e)=>onChange(question.id,e.target.value)}
+          onChange={(e) => onChange(question.id, e.target.value)}
           className="w-full px-3 py-2 border rounded-lg"
         />
 
